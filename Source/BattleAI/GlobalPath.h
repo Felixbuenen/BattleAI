@@ -29,6 +29,7 @@ public:
 
 	void InitPath(const std::vector<struct NodePosition>& pathPoints);
 
-	FVector GetDirectionAtPercentile(float percentile) const;
+	FRotator GetDirectionAtPercentile(float percentile) const;
 	FVector GetLocationAtPercentile(float percentile) const;
+	float GetPathLength() const;
 };

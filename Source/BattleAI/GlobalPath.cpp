@@ -25,28 +25,38 @@ void AGlobalPath::BeginPlay()
 void AGlobalPath::InitPath(const std::vector<NodePosition>& pathPoints)
 {
 	// ensure path is empty at this point
-	splinePath->ClearSplinePoints(false);
-
-	// set spline path points
-	for (const NodePosition& pos : pathPoints)
+	if (splinePath)
 	{
-		FVector position;
-		position.X = pos.x;
-		position.Y = pos.y;
-		splinePath->AddSplinePoint(position, ESplineCoordinateSpace::World, false);
-	}
+		splinePath->ClearSplinePoints(true);
+		
+		int pathLength = (int)pathPoints.size();
 
-	splinePath->UpdateSpline();
-	splinePath->Duration = 1.f;
+		for (int i = pathLength - 1; i >= 0; i--)
+		{
+			FVector position;
+			position.X = pathPoints[i].x;
+			position.Y = pathPoints[i].y;
+
+			splinePath->AddSplinePoint(position, ESplineCoordinateSpace::World ,true);
+		}
+
+		splinePath->UpdateSpline();
+		splinePath->Duration = 1.f;
+	}
 }
 
-FVector AGlobalPath::GetDirectionAtPercentile(float percentile) const
+FRotator AGlobalPath::GetDirectionAtPercentile(float percentile) const
 {
-	return splinePath->GetDirectionAtTime(percentile, ESplineCoordinateSpace::World);
+	return splinePath->GetRotationAtTime(percentile, ESplineCoordinateSpace::World);
 }
 FVector AGlobalPath::GetLocationAtPercentile(float percentile) const
 {
 	return splinePath->GetLocationAtTime(percentile, ESplineCoordinateSpace::World);
+}
+
+float AGlobalPath::GetPathLength() const
+{
+	return splinePath->GetSplineLength();
 }
 
 // Called every frame

@@ -40,17 +40,6 @@ void AFormationCommander::InitFormation()
 	FinalDestination = GetActorLocation();
 }
 
-void AFormationCommander::MoveToLocation(FVector location)
-{
-	//if (GlobalPathRef == NULL)
-	//{
-	//	GetWorld()->DestroyActor(GlobalPathRef);
-	//}
-	//
-	//GlobalPathRef = GetWorld()->SpawnActor<AGlobalPath>(TSubclassOf<AGlobalPath>(), FVector(0.f), FRotator());
-	
-}
-
 // Called when the game starts or when spawned
 void AFormationCommander::BeginPlay()
 {
@@ -63,8 +52,7 @@ void AFormationCommander::BeginPlay()
 void AFormationCommander::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-
+	Move(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -72,6 +60,34 @@ void AFormationCommander::SetupPlayerInputComponent(UInputComponent* PlayerInput
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void AFormationCommander::MoveToLocation(AGlobalPath* path)
+{
+	isMoving = true;
+	pathDelta = 0.f; // ugly...
+	GlobalPathRef = path;
+}
+
+void AFormationCommander::Move(float DeltaTime)
+{
+	if (isMoving)
+	{
+		if (pathDelta > 0.995f) // ugly...
+		{
+			isMoving = false;
+			return;
+		}
+		FRotator dir = GlobalPathRef->GetDirectionAtPercentile(pathDelta);
+		FVector pos = GlobalPathRef->GetLocationAtPercentile(pathDelta);
+		pos.Z = GetActorLocation().Z;
+		dir.Roll = 0.f;
+		dir.Pitch = 0.f;
+
+		SetActorLocationAndRotation(pos, dir);
+
+		pathDelta += ((150.f * DeltaTime) / GlobalPathRef->GetPathLength());
+	}
 }
 
 void AFormationCommander::SetupFinalDestination(FVector Location)

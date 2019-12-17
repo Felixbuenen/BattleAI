@@ -86,18 +86,19 @@ AGlobalPath* ABattleAILevel::FindGlobalPath(FVector commanderLocation, FVector d
 			world->DestroyActor(currentPath);
 		}
 
-		currentPath = GetWorld()->SpawnActor<AGlobalPath>(TSubclassOf<AGlobalPath>(), FVector(0.f), FRotator());
+		//currentPath = GetWorld()->SpawnActor<AGlobalPath>(TSubclassOf<AGlobalPath>(), FName("Global Path"), FVector(0.f), FRotator());
+		currentPath = GetWorld()->SpawnActor<AGlobalPath>(AGlobalPath::StaticClass(), FVector(0.f), FRotator());
 		currentPath->InitPath(path);
 	}
 
 
-	for (NodePosition pos : path)
-	{
-		FVector center(pos.x, pos.y, 70);
-		FVector extend(cellSize / 2.f);
-		DrawDebugSolidBox(world, center, extend, FColor::Red, false, 100.f);
-	}
-	UE_LOG(LogTemp, Warning, TEXT("path length is %d"), (int)path.size());
+	//for (NodePosition pos : path)
+	//{
+	//	FVector center(pos.x, pos.y, 70);
+	//	FVector extend(cellSize / 2.f);
+	//	DrawDebugSolidBox(world, center, extend, FColor::Red, false, 100.f);
+	//}
+	//UE_LOG(LogTemp, Warning, TEXT("path length is %d"), (int)path.size());
 
 	return currentPath;
 }

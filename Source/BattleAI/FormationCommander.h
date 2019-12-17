@@ -21,17 +21,21 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<class ASoldier*> Soldiers;
 
+	UPROPERTY(BlueprintReadOnly)
+	bool isMoving = false;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	void InitFormation();
+	void Move(float DeltaTime);
 
 	TSubclassOf<class ASoldier> SoldierRef;
 	class AGlobalPath* GlobalPathRef;
 	FVector FinalDestination;
 
-	bool isMoving = false;
+	float pathDelta = 0.f;
 
 public:	
 	// Called every frame
@@ -44,7 +48,7 @@ public:
 	void SetupFinalDestination(FVector Location);
 
 	UFUNCTION(BlueprintCallable)
-	void MoveToLocation(FVector location);
+	void MoveToLocation(AGlobalPath* path);
 
 	void SetGlobalPath(AGlobalPath* path) { GlobalPathRef = path; }
 };
