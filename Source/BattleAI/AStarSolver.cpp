@@ -81,8 +81,8 @@ void UAStarSolver::Init(const int width, const int height, const int cellSize, c
 bool UAStarSolver::Solve(const FVector2D bboxExtent, const int start, const int goal, std::vector<NodePosition>& outPath)
 {
 	if (start == goal) return false;
-	if (start < 0 || start >= 100*99) return false;
-	if (goal < 0 || goal >= 100*99) return false;
+	if (start < 0 || start >= (int)grid.size()) return false;
+	if (goal < 0 || goal >= (int)grid.size()) return false;
 	// reset all nodes in the grid
 	for (Node* node : grid)
 	{
@@ -122,7 +122,8 @@ bool UAStarSolver::Solve(const FVector2D bboxExtent, const int start, const int 
 
 		Node* current = openQueue.front();
 		current->processed = true;
-
+		Direction currentDirection = current->parent != nullptr ? GetCurrentDirection(current->parent->x, current->x, current->parent->y, current->y) : Direction::C;
+		
 		// process neighbors
 		for (Node* neighbor : current->neighbors)
 		{
@@ -130,6 +131,12 @@ bool UAStarSolver::Solve(const FVector2D bboxExtent, const int start, const int 
 				openQueue.push_back(neighbor);
 
 			float potentialNewLocal = (current->localGoal + distance(current, neighbor));
+			
+			Direction newDirection = GetCurrentDirection(current->x, neighbor->x, current->y, neighbor->y);
+			if (newDirection != currentDirection)
+			{
+				potentialNewLocal += 250.f; // add penalty if agent needs to change direction (prevent zigzagging)
+			}
 
 			if (potentialNewLocal < neighbor->localGoal)
 			{
@@ -152,25 +159,49 @@ std::vector<NodePosition> UAStarSolver::CreatePath(Node* start, Node* goal)
 	std::vector<NodePosition> path;
 	if (goal->parent == nullptr) return path;
 
+	// add first node to list
+	NodePosition prevPos;
 	NodePosition pos;
 	pos.x = goal->x;
 	pos.y = goal->y;
 	path.push_back(pos);
+	
+	prevPos = pos;
 	Node* p = goal->parent;
+	Direction currentDir = Direction::C;
+	NodePosition newPos;
+
 	while (p != nullptr)
 	{
-		NodePosition newPos;
+		// TODO: deze code werkt niet met UE4 splines (automatic tangents)
+		//Direction newDir = GetCurrentDirection(prevPos.x, p->x, prevPos.y, p->y);
+		//if(newDir == currentDir)
+		//{
+		//	p = p->parent;
+		//	continue;
+		//}
+
+		//currentDir = newDir;
 		newPos.x = p->x;
 		newPos.y = p->y;
+		prevPos = newPos;
 
 		path.push_back(newPos);
 		p = p->parent;
 	}
 
+	NodePosition startNode;
+	startNode.x = start->x;
+	startNode.y = start->y;
+	// check if the last added node was the start node
+	if (startNode.x != newPos.x && startNode.y != newPos.y)
+	{
+		path.push_back(startNode);
+	}
+
 	return path;
 }
 
-// TWO SAME FUNCTIONS...
 int UAStarSolver::distance(const Node* from, const Node* to) const
 {
 	float xDiff = abs(to->x - from->x);
@@ -183,4 +214,29 @@ int UAStarSolver::distance(const Node* from, const Node* to) const
 int UAStarSolver::Heuristic(const Node* from, const Node* to) const
 {
 	return distance(from, to);
+}
+
+Direction UAStarSolver::GetCurrentDirection(float fromX, float toX, float fromY, float toY) const
+{
+
+	if (fromX == toX)
+	{
+		if (fromY == toY) { return Direction::C; }
+		else if (toY > fromY) { return Direction::N; }
+		else { return Direction::S; }
+	}
+
+	else if (toX > fromX)
+	{
+		if (toY == fromY) { return Direction::E; }
+		else if (toY > fromY) { return Direction::NE; }
+		else { return Direction::SE; }
+	}
+
+	else
+	{
+		if (toY == fromY) { return Direction::W; }
+		else if (toY > fromY) { return Direction::NW; }
+		else { return Direction::SW; }
+	}
 }

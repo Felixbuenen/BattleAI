@@ -38,6 +38,7 @@ void AGlobalPath::InitPath(const std::vector<NodePosition>& pathPoints)
 			position.Y = pathPoints[i].y;
 
 			splinePath->AddSplinePoint(position, ESplineCoordinateSpace::World ,true);
+			//splinePath->SetTangentAtSplinePoint(i, FVector{150.f, 0.f, 0.f}, ESplineCoordinateSpace::Local, true);
 		}
 
 		splinePath->UpdateSpline();

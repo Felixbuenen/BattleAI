@@ -92,12 +92,12 @@ AGlobalPath* ABattleAILevel::FindGlobalPath(FVector commanderLocation, FVector d
 	}
 
 
-	//for (NodePosition pos : path)
-	//{
-	//	FVector center(pos.x, pos.y, 70);
-	//	FVector extend(cellSize / 2.f);
-	//	DrawDebugSolidBox(world, center, extend, FColor::Red, false, 100.f);
-	//}
+	for (NodePosition pos : path)
+	{
+		FVector center(pos.x, pos.y, 70);
+		FVector extend(cellSize / 2.f);
+		DrawDebugSolidBox(world, center, extend, FColor::Red, false, 100.f);
+	}
 	//UE_LOG(LogTemp, Warning, TEXT("path length is %d"), (int)path.size());
 
 	return currentPath;

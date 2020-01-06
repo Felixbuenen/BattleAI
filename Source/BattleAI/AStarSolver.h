@@ -28,6 +28,19 @@ struct NodePosition
 	int x, y;
 };
 
+enum Direction
+{
+	NW,
+	N,
+	NE,
+	W,
+	C,
+	E,
+	SW,
+	S,
+	SE
+};
+
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "AStarSolver.generated.h" 
@@ -56,6 +69,7 @@ private:
 	FORCEINLINE int distance(const Node* from, const Node* to) const;
 	std::vector<NodePosition> CreatePath(Node* start, Node* goal);
 	std::vector<Node*> grid;
+	Direction GetCurrentDirection(float fromX, float toX, float fromY, float toY) const; // replace by lookup
 
 	class USphereComponent* sphereCollider;
 	float cellSize;
