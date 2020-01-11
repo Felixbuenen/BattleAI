@@ -55,11 +55,9 @@ void ABattleAILevel::InitPathfindingInfo()
 			// end debug drawing
 		}
 	}
-
-
 }
 
-AGlobalPath* ABattleAILevel::FindGlobalPath(FVector commanderLocation, FVector destination)
+AGlobalPath* ABattleAILevel::FindGlobalPath(AGlobalPath* pathRef, FVector commanderLocation, FVector destination)
 {
 	FVector gridCenter = floor->GetActorLocation();
 
@@ -78,19 +76,13 @@ AGlobalPath* ABattleAILevel::FindGlobalPath(FVector commanderLocation, FVector d
 	bool foundPath = pathfinder->Solve(formationBboxExtent, startIndexX + startIndexY * 100, goalIndexX + goalIndexY * 100, path);
 	UWorld* world = GetWorld();
 
-	if (foundPath)
+	if (!foundPath)
 	{
-		// spawn global path object
-		if (currentPath)
-		{
-			world->DestroyActor(currentPath);
-		}
-
-		//currentPath = GetWorld()->SpawnActor<AGlobalPath>(TSubclassOf<AGlobalPath>(), FName("Global Path"), FVector(0.f), FRotator());
-		currentPath = GetWorld()->SpawnActor<AGlobalPath>(AGlobalPath::StaticClass(), FVector(0.f), FRotator());
-		currentPath->InitPath(path);
+		UE_LOG(LogTemp, Error, TEXT("Could not find path!"));
+		return nullptr;
 	}
 
+	pathRef->InitPath(path);
 
 	for (NodePosition pos : path)
 	{
@@ -98,7 +90,6 @@ AGlobalPath* ABattleAILevel::FindGlobalPath(FVector commanderLocation, FVector d
 		FVector extend(cellSize / 2.f);
 		DrawDebugSolidBox(world, center, extend, FColor::Red, false, 100.f);
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("path length is %d"), (int)path.size());
 
-	return currentPath;
+	return pathRef;
 }

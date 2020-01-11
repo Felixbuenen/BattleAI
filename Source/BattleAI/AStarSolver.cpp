@@ -15,8 +15,6 @@
 UAStarSolver::UAStarSolver()
 {
 	sphereCollider = CreateDefaultSubobject<USphereComponent>(TEXT("sphere collider"));
-	//sphereCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	//sphereCollider->SetCollisionResponseToChannel(ECollisionChannel::, ECollisionResponse::ECR_Overlap);
 	sphereCollider->SetSphereRadius(500.f);
 }
 
@@ -80,9 +78,21 @@ void UAStarSolver::Init(const int width, const int height, const int cellSize, c
 // reference used: https://github.com/OneLoneCoder/videos/blob/master/OneLoneCoder_PathFinding_AStar.cpp
 bool UAStarSolver::Solve(const FVector2D bboxExtent, const int start, const int goal, std::vector<NodePosition>& outPath)
 {
-	if (start == goal) return false;
-	if (start < 0 || start >= (int)grid.size()) return false;
-	if (goal < 0 || goal >= (int)grid.size()) return false;
+	if (start == goal) {
+		UE_LOG(LogTemp, Error, TEXT("could not find path: START==GOAL"));
+		return false;
+	}
+	if (start < 0 || start >= (int)grid.size()) {
+		UE_LOG(LogTemp, Error, TEXT("could not find path: INVALID START POSITION (%d). Grid size is %d"), start, (int)grid.size());
+		return false;
+	}
+	if (goal < 0 || goal >= (int)grid.size()) {
+		UE_LOG(LogTemp, Error, TEXT("could not find path: INVALID GOAL POSITION"));
+		return false;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Grid size is %d"), (int)grid.size());
+
 	// reset all nodes in the grid
 	for (Node* node : grid)
 	{
@@ -148,10 +158,13 @@ bool UAStarSolver::Solve(const FVector2D bboxExtent, const int start, const int 
 		}
 	}
 	outPath = CreatePath(startNode, goalNode);
-	if (outPath.empty()) return false;
+	if (outPath.empty())
+	{
+		UE_LOG(LogTemp, Error, TEXT("could not find path"));
+		return false;
+	}
 
 	return true;
-
 }
 
 std::vector<NodePosition> UAStarSolver::CreatePath(Node* start, Node* goal)

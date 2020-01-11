@@ -32,7 +32,7 @@ protected:
 	void Move(float DeltaTime);
 
 	TSubclassOf<class ASoldier> SoldierRef;
-	class AGlobalPath* GlobalPathRef;
+	class AGlobalPath* CurrentPath;
 	FVector FinalDestination;
 
 	float pathDelta = 0.f;
@@ -48,7 +48,10 @@ public:
 	void SetupFinalDestination(FVector Location);
 
 	UFUNCTION(BlueprintCallable)
-	void MoveToLocation(AGlobalPath* path);
+	void MoveToLocation();
 
-	void SetGlobalPath(AGlobalPath* path) { GlobalPathRef = path; }
+	UFUNCTION(BlueprintCallable)
+	AGlobalPath* GetCurrentPath() const { return CurrentPath; }
+	
+	void SetCurrentPath(AGlobalPath* path) { CurrentPath = path; }
 };

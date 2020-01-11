@@ -45,6 +45,8 @@ void AFormationCommander::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CurrentPath = GetWorld()->SpawnActor<AGlobalPath>(AGlobalPath::StaticClass(), FVector(0.f), FRotator());
+
 	InitFormation();
 }
 
@@ -62,11 +64,10 @@ void AFormationCommander::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 }
 
-void AFormationCommander::MoveToLocation(AGlobalPath* path)
+void AFormationCommander::MoveToLocation()
 {
 	isMoving = true;
 	pathDelta = 0.f; // ugly...
-	GlobalPathRef = path;
 }
 
 void AFormationCommander::Move(float DeltaTime)
@@ -78,15 +79,15 @@ void AFormationCommander::Move(float DeltaTime)
 			isMoving = false;
 			return;
 		}
-		FRotator dir = GlobalPathRef->GetDirectionAtPercentile(pathDelta);
-		FVector pos = GlobalPathRef->GetLocationAtPercentile(pathDelta);
+		FRotator dir = CurrentPath->GetDirectionAtPercentile(pathDelta);
+		FVector pos = CurrentPath->GetLocationAtPercentile(pathDelta);
 		pos.Z = GetActorLocation().Z;
 		dir.Roll = 0.f;
 		dir.Pitch = 0.f;
 
 		SetActorLocationAndRotation(pos, dir);
 
-		pathDelta += ((150.f * DeltaTime) / GlobalPathRef->GetPathLength());
+		pathDelta += ((150.f * DeltaTime) / CurrentPath->GetPathLength());
 	}
 }
 

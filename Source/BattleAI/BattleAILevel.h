@@ -21,14 +21,14 @@ protected:
 	UPROPERTY(EditAnywhere)
 	class AStaticMeshActor* floor;
 
+	UPROPERTY()
 	class UAStarSolver* pathfinder;
-	class AGlobalPath* currentPath;
 
 	UFUNCTION(BlueprintCallable, Category = LevelBlueprint)
 	void InitPathfindingInfo();
 
 	UFUNCTION(BlueprintCallable, Category = LevelBlueprint)
-	class AGlobalPath* FindGlobalPath(FVector commanderPosition, FVector destination);
+	class AGlobalPath* FindGlobalPath(AGlobalPath* pathRef, FVector commanderPosition, FVector destination);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = LevelBlueprint)
 	int GetClearance(FVector position, FVector extent);
