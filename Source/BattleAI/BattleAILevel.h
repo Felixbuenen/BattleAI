@@ -31,6 +31,11 @@ protected:
 	class AGlobalPath* FindGlobalPath(AGlobalPath* pathRef, FVector commanderPosition, FVector destination);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = LevelBlueprint)
-	int GetClearance(FVector position, FVector extent);
+	int CalculateClearance(FVector position, FVector extent);
 
+	virtual void Tick(float DeltaTime) override;
+
+	float CellExtent;
+	float levelBoundX;
+	float levelBoundY;
 };

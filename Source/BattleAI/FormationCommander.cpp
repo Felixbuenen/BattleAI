@@ -36,8 +36,6 @@ void AFormationCommander::InitFormation()
 		soldier->MyOffset = FormationPositions[i];
 		Soldiers.Add( soldier);
 	}
-
-	//FinalDestination = GetActorLocation();
 }
 
 // Called when the game starts or when spawned
@@ -67,14 +65,14 @@ void AFormationCommander::SetupPlayerInputComponent(UInputComponent* PlayerInput
 void AFormationCommander::MoveToLocation()
 {
 	isMoving = true;
-	pathDelta = 0.f; // ugly...
+	pathDelta = 0.f; // ugly... should probably be included in the GlobalPath object
 }
 
 void AFormationCommander::Move(float DeltaTime)
 {
 	if (isMoving)
 	{
-		if (pathDelta > 0.995f) // ugly...
+		if (pathDelta > 0.995f) // ugly... should probably be included in the GlobalPath object
 		{
 			isMoving = false;
 			return;
@@ -87,20 +85,15 @@ void AFormationCommander::Move(float DeltaTime)
 
 		SetActorLocationAndRotation(pos, dir);
 
+		// TODO: make speed variable, depending on max soldier distance
 		pathDelta += ((150.f * DeltaTime) / CurrentPath->GetPathLength());
 	}
 }
 
 void AFormationCommander::AssignSoldierOffset(const AGlobalPath* path)
 {
-	// indicates where the formation is facing at final location
-	//FVector2D dir = ((FVector2D)Location - (FVector2D)GetActorLocation());
-	//FinalDestination = Location;
-
 	FRotator dirRotation = path->GetDirectionAtPercentile(0.f); // get starting direction
 	FVector2D dir = (FVector2D)dirRotation.Vector();
-
-	UE_LOG(LogTemp, Error, TEXT("Direction: %s"), *dir.ToString());
 
 	// TODO: optimize!
 	HungarianAlgorithm ha;
@@ -140,12 +133,4 @@ void AFormationCommander::AssignSoldierOffset(const AGlobalPath* path)
 	{
 		Soldiers[i]->MyOffset = FormationPositions[assignmentOutput[i]];
 	}
-
-	//const UWorld* world = GetWorld();
-	//for (int i = 0; i < numSoldiers; i++)
-	//{
-	//	FVector center = FormationPositions[assignmentOutput[i]] + GetActorLocation();
-	//	center.Z = 60.f;
-	//	DrawDebugBox(world, center, FVector{100.f}, FColor::Magenta, false, 100.f);
-	//}
 }

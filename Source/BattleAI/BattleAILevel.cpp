@@ -8,9 +8,11 @@
 #include "Components/SphereComponent.h"
 #include "AStarSolver.h"
 #include "GlobalPath.h"
+#include "BattleAIGameState.h"
 
 ABattleAILevel::ABattleAILevel()
 {
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ABattleAILevel::InitPathfindingInfo()
@@ -19,40 +21,58 @@ void ABattleAILevel::InitPathfindingInfo()
 	pathfinder = NewObject<UAStarSolver>();
 
 	FVector origin;
-	float boundX = floor->GetStaticMeshComponent()->Bounds.BoxExtent.X;
-	float boundY = floor->GetStaticMeshComponent()->Bounds.BoxExtent.Y;
+	levelBoundX = floor->GetStaticMeshComponent()->Bounds.BoxExtent.X;
+	levelBoundY = floor->GetStaticMeshComponent()->Bounds.BoxExtent.Y;
 	origin = floor->GetActorLocation();
 
-	float cellExtent = boundX / 100.f;
+	CellExtent = levelBoundX / 100.f;
 
-	pathfinder->Init(100, 100, cellExtent * 2, floor);
-
-
+	pathfinder->Init(100, 100, CellExtent * 2, floor);
+	AGlobalPath::SetCellSize(CellExtent * 2);
+	
+	// calculate clearance
 	const UWorld* world = GetWorld();
-
 	for (int x = 0; x < 100; x++)
 	{
 		for (int y = 0; y < 100; y++)
 		{
-			FVector center(x * cellExtent*2 - boundX + cellExtent, y * cellExtent*2 - boundY + cellExtent, 70);
-			FVector extend(cellExtent);
-
-			int clearance = GetClearance(pathfinder->GetPosition(x + y * 100), FVector(cellExtent));
+			int clearance = CalculateClearance(pathfinder->GetPosition(x + y * 100), FVector(CellExtent));
 			pathfinder->SetClearance(clearance, x + y * 100);
+		}
+	}
+}
 
-			// debug drawing. Note: hard-coded max search depth value
-			const int maxSearchDepth = 20;
-			FColor clr = FColor::MakeRedToGreenColorFromScalar(clearance / (float)(maxSearchDepth));
+void ABattleAILevel::Tick(float DeltaTime)
+{
+	bool drawSDF = ((ABattleAIGameState*)(GetWorld()->GetGameState()))->ShowSDF;
 
-			if (clearance == 0)
+	if (drawSDF)
+	{
+		const UWorld* world = GetWorld();
+
+		for (int x = 0; x < 100; x++)
+		{
+			for (int y = 0; y < 100; y++)
 			{
-				DrawDebugBox(world, center, extend, FColor::Red, false, 100.f);
+				//FVector center(x * CellExtent * 2 - levelBoundX + CellExtent, y * CellExtent * 2 - levelBoundY + CellExtent, 70);
+				FVector center = pathfinder->GetPosition(x + y * 100);
+				center.Z = 70.f;
+				FVector extend(CellExtent);
+
+				int clearance = pathfinder->GetClearance(x + y * 100);
+
+				const int maxSearchDepth = 20;
+				FColor clr = FColor::MakeRedToGreenColorFromScalar(clearance / (float)(maxSearchDepth));
+
+				if (clearance == 0)
+				{
+					DrawDebugBox(world, center, extend, FColor::Red, false);
+				}
+				else
+				{
+					DrawDebugBox(world, center, extend, clr, false);
+				}
 			}
-			else
-			{
-				DrawDebugBox(world, center, extend, clr, false, 100.f);
-			}
-			// end debug drawing
 		}
 	}
 }
@@ -84,12 +104,12 @@ AGlobalPath* ABattleAILevel::FindGlobalPath(AGlobalPath* pathRef, FVector comman
 
 	pathRef->InitPath(path);
 
-	for (NodePosition pos : path)
-	{
-		FVector center(pos.x, pos.y, 70);
-		FVector extend(cellSize / 2.f);
-		DrawDebugSolidBox(world, center, extend, FColor::Red, false, 100.f);
-	}
+	//for (NodePosition pos : path)
+	//{
+	//	FVector center(pos.x, pos.y, 70);
+	//	FVector extend(cellSize / 2.f);
+	//	DrawDebugSolidBox(world, center, extend, FColor::Red, false, 100.f);
+	//}
 
 	return pathRef;
 }

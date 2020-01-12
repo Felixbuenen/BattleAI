@@ -3,14 +3,18 @@
 
 #include "GlobalPath.h"
 #include "AStarSolver.h"
+#include "DrawDebugHelpers.h"
+#include "BattleAIGameState.h"
 
 #include "Components/SplineComponent.h"
+
+float AGlobalPath::CellSize;
 
 // Sets default values
 AGlobalPath::AGlobalPath()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	splinePath = CreateDefaultSubobject<USplineComponent>(TEXT("Spline Path"));
 }
@@ -22,8 +26,10 @@ void AGlobalPath::BeginPlay()
 	
 }
 
-void AGlobalPath::InitPath(const std::vector<NodePosition>& pathPoints)
+void AGlobalPath::InitPath(std::vector<NodePosition>& pathPoints)
 {
+	pathPositions = pathPoints;
+
 	// ensure path is empty at this point
 	if (splinePath)
 	{
@@ -65,5 +71,15 @@ void AGlobalPath::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	bool showPath = Cast<ABattleAIGameState>(GetWorld()->GetGameState())->ShowGlobalPaths;
+	if (showPath)
+	{
+		for (const NodePosition& pos : pathPositions)
+		{
+			FVector center(pos.x, pos.y, 70);
+			FVector extend(CellSize * 0.5f);
+			DrawDebugSolidBox(GetWorld(), center, extend, FColor::Red, false);
+		}
+	}
 }
 

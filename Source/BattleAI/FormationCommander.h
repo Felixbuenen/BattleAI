@@ -33,7 +33,6 @@ protected:
 
 	TSubclassOf<class ASoldier> SoldierRef;
 	class AGlobalPath* CurrentPath;
-	//FVector FinalDestination;
 
 	float pathDelta = 0.f;
 

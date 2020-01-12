@@ -3,11 +3,15 @@
 #pragma once
 
 #include <vector>
+#include "AStarSolver.h"
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GlobalPath.generated.h"
 
+/**
+ *
+ */
 UCLASS()
 class BATTLEAI_API AGlobalPath : public AActor
 {
@@ -22,15 +26,22 @@ protected:
 	virtual void BeginPlay() override;
 
 	class USplineComponent* splinePath;
+	std::vector<NodePosition> pathPositions;
+
+	static float CellSize;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void InitPath(const std::vector<struct NodePosition>& pathPoints);
+	void InitPath(std::vector<NodePosition>& pathPoints);
 
 	FRotator GetDirectionAtPercentile(float percentile) const;
 	FVector GetLocationAtPercentile(float percentile) const;
 
 	float GetPathLength() const;
+	static void SetCellSize(float cellSize)
+	{
+		CellSize = cellSize;
+	}
 };

@@ -61,7 +61,9 @@ public:
 	bool Solve(const FVector2D bboxExtent, const int start, const int goal, std::vector<NodePosition>& outPath);
 	void SetClearance(int clearance, int index);
 
-	FVector GetPosition(int index) const;
+	FORCEINLINE FVector GetPosition(int index) const;
+	FORCEINLINE int GetClearance(int index) const;
+	FORCEINLINE std::vector<Node*> GetGrid() const { return grid; }
 
 private:
 

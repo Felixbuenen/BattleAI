@@ -36,6 +36,11 @@ FVector UAStarSolver::GetPosition(int index) const
 	return FVector(grid[index]->x, grid[index]->y, 0.f);
 }
 
+int UAStarSolver::GetClearance(int index) const
+{
+	return grid[index]->clearance;
+}
+
 void UAStarSolver::Init(const int width, const int height, const int cellSize, const AActor* gridObject)
 {
 	this->cellSize = cellSize;
