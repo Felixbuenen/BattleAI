@@ -33,7 +33,7 @@ protected:
 
 	TSubclassOf<class ASoldier> SoldierRef;
 	class AGlobalPath* CurrentPath;
-	FVector FinalDestination;
+	//FVector FinalDestination;
 
 	float pathDelta = 0.f;
 
@@ -45,7 +45,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
 	UFUNCTION(BlueprintCallable)
-	void SetupFinalDestination(FVector Location);
+	void AssignSoldierOffset(const AGlobalPath* path);
 
 	UFUNCTION(BlueprintCallable)
 	void MoveToLocation();

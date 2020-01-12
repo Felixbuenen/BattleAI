@@ -31,5 +31,6 @@ public:
 
 	FRotator GetDirectionAtPercentile(float percentile) const;
 	FVector GetLocationAtPercentile(float percentile) const;
+
 	float GetPathLength() const;
 };

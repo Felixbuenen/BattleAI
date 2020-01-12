@@ -37,7 +37,7 @@ void AFormationCommander::InitFormation()
 		Soldiers.Add( soldier);
 	}
 
-	FinalDestination = GetActorLocation();
+	//FinalDestination = GetActorLocation();
 }
 
 // Called when the game starts or when spawned
@@ -91,11 +91,16 @@ void AFormationCommander::Move(float DeltaTime)
 	}
 }
 
-void AFormationCommander::SetupFinalDestination(FVector Location)
+void AFormationCommander::AssignSoldierOffset(const AGlobalPath* path)
 {
 	// indicates where the formation is facing at final location
-	FVector2D dir = ((FVector2D)Location - (FVector2D)GetActorLocation());
-	FinalDestination = Location;
+	//FVector2D dir = ((FVector2D)Location - (FVector2D)GetActorLocation());
+	//FinalDestination = Location;
+
+	FRotator dirRotation = path->GetDirectionAtPercentile(0.f); // get starting direction
+	FVector2D dir = (FVector2D)dirRotation.Vector();
+
+	UE_LOG(LogTemp, Error, TEXT("Direction: %s"), *dir.ToString());
 
 	// TODO: optimize!
 	HungarianAlgorithm ha;
@@ -110,7 +115,7 @@ void AFormationCommander::SetupFinalDestination(FVector Location)
 	int numSoldiers = FormationPositions.Num();
 	for (int i = 0; i < numSoldiers; i++)
 	{
-		FVector targetPos = FVector((dir * FormationPositions[i].X + rightOrientation * FormationPositions[i].Y), 0) + FinalDestination;
+		FVector targetPos = FVector((dir * FormationPositions[i].X + rightOrientation * FormationPositions[i].Y), 0) + GetActorLocation();
 		targetPositions.push_back(targetPos);
 	}
 	
@@ -135,4 +140,12 @@ void AFormationCommander::SetupFinalDestination(FVector Location)
 	{
 		Soldiers[i]->MyOffset = FormationPositions[assignmentOutput[i]];
 	}
+
+	//const UWorld* world = GetWorld();
+	//for (int i = 0; i < numSoldiers; i++)
+	//{
+	//	FVector center = FormationPositions[assignmentOutput[i]] + GetActorLocation();
+	//	center.Z = 60.f;
+	//	DrawDebugBox(world, center, FVector{100.f}, FColor::Magenta, false, 100.f);
+	//}
 }
