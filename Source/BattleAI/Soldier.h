@@ -28,4 +28,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	FVector MyOffset;
+
+	UPROPERTY(BlueprintReadOnly)
+	class AFormationCommander* MyCommander;
 };

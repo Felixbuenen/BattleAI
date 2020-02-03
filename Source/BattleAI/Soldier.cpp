@@ -14,6 +14,8 @@ ASoldier::ASoldier()
 	GetCharacterMovement()->bUseRVOAvoidance = true;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
+
+	
 }
 
 // Called when the game starts or when spawned

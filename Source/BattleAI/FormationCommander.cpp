@@ -20,8 +20,6 @@ AFormationCommander::AFormationCommander()
 	SoldierRef = FloorCellClassFinder.Object;
 }
 
-
-
 void AFormationCommander::InitFormation()
 {
 	// spawn soldiers and set correct orientation
@@ -34,7 +32,8 @@ void AFormationCommander::InitFormation()
 
 		auto soldier = GetWorld()->SpawnActor<ASoldier>(SoldierRef, location, rotation);
 		soldier->MyOffset = FormationPositions[i];
-		Soldiers.Add( soldier);
+		soldier->MyCommander = this;
+		Soldiers.Add( soldier );
 	}
 }
 
