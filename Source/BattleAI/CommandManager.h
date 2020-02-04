@@ -34,6 +34,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void HandleMouseMoved(FVector2D screenPos);
 
+	UPROPERTY(BlueprintReadOnly)
 	TArray<class AFormationCommander*> activeFormations;
 
 	void ToggleSelectFormation(bool selected, AFormationCommander* formation, int index = -1);
