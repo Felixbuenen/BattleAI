@@ -29,9 +29,43 @@ void ACommandManager::Tick(float DeltaTime)
 
 void ACommandManager::HandleLeftMouseDown(AFormationCommander* formation)
 {
+	// valid formation selected
 	if (formation)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Formation with %d soldiers"), (int)formation->Soldiers.Num());
+		int formationIndex = activeFormations.Find(formation);
+		bool alreadyActive = formationIndex != INDEX_NONE;
+
+		if (alreadyActive)
+		{
+			if (multiSelect)
+			{
+				ToggleSelectFormation(false, formation, formationIndex);
+			}
+			else
+			{
+				DeselectAllFormations();
+				ToggleSelectFormation(true, formation);
+			}
+		}
+		else
+		{
+			if (!multiSelect)
+			{
+				DeselectAllFormations();
+			}
+
+			ToggleSelectFormation(true, formation);
+		}
+
+		
+	}
+	// nothing selected
+	else
+	{
+		if (!multiSelect)
+		{
+			DeselectAllFormations();
+		}
 	}
 }
 
@@ -48,4 +82,27 @@ void ACommandManager::HandleRightMouseUp()
 void ACommandManager::HandleMouseMoved(FVector2D screenPos)
 {
 
+}
+
+void ACommandManager::ToggleSelectFormation(bool selected, AFormationCommander* formation, int index)
+{
+	formation->SetSelectionDisplay(selected);
+	if (selected)
+	{
+		activeFormations.Emplace(formation);
+	}
+	else
+	{
+		activeFormations.Remove(formation);
+	}
+}
+
+void ACommandManager::DeselectAllFormations()
+{
+	for (auto f : activeFormations)
+	{
+		f->SetSelectionDisplay(false);
+	}
+
+	activeFormations.Empty();
 }

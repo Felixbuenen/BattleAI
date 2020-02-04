@@ -15,6 +15,9 @@ public:
 	// Sets default values for this actor's properties
 	ACommandManager();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool multiSelect;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -30,6 +33,11 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void HandleMouseMoved(FVector2D screenPos);
+
+	TArray<class AFormationCommander*> activeFormations;
+
+	void ToggleSelectFormation(bool selected, AFormationCommander* formation, int index = -1);
+	void DeselectAllFormations();
 
 public:	
 	// Called every frame

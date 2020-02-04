@@ -53,4 +53,6 @@ public:
 	AGlobalPath* GetCurrentPath() const { return CurrentPath; }
 	
 	void SetCurrentPath(AGlobalPath* path) { CurrentPath = path; }
+
+	void SetSelectionDisplay(bool selected);
 };

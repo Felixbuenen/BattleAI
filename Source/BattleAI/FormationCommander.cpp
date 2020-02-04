@@ -9,6 +9,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Engine.h"
 #include "Kismet/KismetSystemLibrary.h" 
+#include "Components/DecalComponent.h"
 
 // Sets default values
 AFormationCommander::AFormationCommander()
@@ -131,5 +132,14 @@ void AFormationCommander::AssignSoldierOffset(const AGlobalPath* path)
 	for (int i = 0; i < numSoldiers; i++)
 	{
 		Soldiers[i]->MyOffset = FormationPositions[assignmentOutput[i]];
+	}
+}
+
+void AFormationCommander::SetSelectionDisplay(bool selected)
+{
+	for (ASoldier* s : Soldiers)
+	{
+		UDecalComponent* decal = (UDecalComponent*)s->FindComponentByClass<UDecalComponent>();
+		decal->SetVisibility(selected);
 	}
 }
