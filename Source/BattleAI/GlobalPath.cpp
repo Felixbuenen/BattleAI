@@ -17,6 +17,7 @@ AGlobalPath::AGlobalPath()
 	PrimaryActorTick.bCanEverTick = true;
 
 	splinePath = CreateDefaultSubobject<USplineComponent>(TEXT("Spline Path"));
+	SetRootComponent(splinePath);
 }
 
 // Called when the game starts or when spawned
@@ -31,25 +32,22 @@ void AGlobalPath::InitPath(std::vector<NodePosition>& pathPoints)
 	pathPositions = pathPoints;
 
 	// ensure path is empty at this point
-	if (splinePath)
+	splinePath->ClearSplinePoints(true);
+	
+	int pathLength = (int)pathPositions.size();
+
+	for (int i = pathLength - 1; i >= 0; i--)
 	{
-		splinePath->ClearSplinePoints(true);
-		
-		int pathLength = (int)pathPoints.size();
+		FVector position;
+		position.X = pathPositions[i].x;
+		position.Y = pathPositions[i].y;
 
-		for (int i = pathLength - 1; i >= 0; i--)
-		{
-			FVector position;
-			position.X = pathPoints[i].x;
-			position.Y = pathPoints[i].y;
-
-			splinePath->AddSplinePoint(position, ESplineCoordinateSpace::World ,true);
-			//splinePath->SetTangentAtSplinePoint(i, FVector{150.f, 0.f, 0.f}, ESplineCoordinateSpace::Local, true);
-		}
-
-		splinePath->UpdateSpline();
-		splinePath->Duration = 1.f;
+		splinePath->AddSplinePoint(position, ESplineCoordinateSpace::World ,false);
+		//splinePath->SetTangentAtSplinePoint(i, FVector{150.f, 0.f, 0.f}, ESplineCoordinateSpace::Local, true);
 	}
+
+	splinePath->UpdateSpline();
+	splinePath->Duration = 1.f;
 }
 
 FRotator AGlobalPath::GetDirectionAtPercentile(float percentile) const
@@ -81,5 +79,7 @@ void AGlobalPath::Tick(float DeltaTime)
 			DrawDebugSolidBox(GetWorld(), center, extend, FColor::Red, false);
 		}
 	}
+
+
 }
 

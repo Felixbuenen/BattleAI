@@ -83,6 +83,8 @@ void UAStarSolver::Init(const int width, const int height, const int cellSize, c
 // reference used: https://github.com/OneLoneCoder/videos/blob/master/OneLoneCoder_PathFinding_AStar.cpp
 bool UAStarSolver::Solve(const FVector2D bboxExtent, const int start, const int goal, std::vector<NodePosition>& outPath)
 {
+	UE_LOG(LogTemp, Error, TEXT("start: %d, goal: %d"), start, goal);
+
 	if (start == goal) {
 		UE_LOG(LogTemp, Error, TEXT("could not find path: START==GOAL"));
 		return false;
@@ -95,8 +97,11 @@ bool UAStarSolver::Solve(const FVector2D bboxExtent, const int start, const int 
 		UE_LOG(LogTemp, Error, TEXT("could not find path: INVALID GOAL POSITION"));
 		return false;
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Grid size is %d"), (int)grid.size());
+	if (grid[start]->clearance * cellSize < bboxExtent.Size())
+	{
+		UE_LOG(LogTemp, Error, TEXT("not enough clearance for formation (%f needed, %f at start location)!"), bboxExtent.Size(), grid[start]->clearance);
+		return false;
+	}
 
 	// reset all nodes in the grid
 	for (Node* node : grid)
@@ -110,6 +115,7 @@ bool UAStarSolver::Solve(const FVector2D bboxExtent, const int start, const int 
 	float formationRadius = bboxExtent.Size();
 
 	Node* goalNode = grid[goal];
+	UE_LOG(LogTemp, Warning, TEXT("goal node pos = (%f, %f)"), goalNode->x, goalNode->y);
 
 	//std::priority_queue<Node*, std::vector<Node*>, std::less<Node*>> openQueue;
 	std::list<Node*> openQueue;

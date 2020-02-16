@@ -15,9 +15,6 @@ public:
 	// Sets default values for this character's properties
 	AFormationCommander();
 
-	UPROPERTY(EditAnywhere)
-	TArray<FVector> FormationPositions;
-
 	UPROPERTY(BlueprintReadOnly)
 	TArray<class ASoldier*> Soldiers;
 
@@ -32,7 +29,12 @@ protected:
 	void Move(float DeltaTime);
 
 	TSubclassOf<class ASoldier> SoldierRef;
+
+	UPROPERTY()
 	class AGlobalPath* CurrentPath;
+
+	TArray<FVector> FormationPositions; // describes the current relative offset for each soldier 
+	int currentWidth, currentHeight;    // describes the current widht / height (num soldiers) of the formation
 
 	float pathDelta = 0.f;
 
@@ -51,8 +53,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	AGlobalPath* GetCurrentPath() const { return CurrentPath; }
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+	TSubclassOf<class UFormationDescription> _formDescrRef; 
 	
 	void SetCurrentPath(AGlobalPath* path) { CurrentPath = path; }
-
+	void GetFormationSize(float& width, float& height) const;
 	void SetSelectionDisplay(bool selected);
 };

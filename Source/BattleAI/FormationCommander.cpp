@@ -4,6 +4,7 @@
 #include "Soldier.h"
 #include "HungarianAlgorithm.h"
 #include "GlobalPath.h"
+#include "FormationDescription.h"
 
 #include "Engine/World.h"
 #include "UObject/ConstructorHelpers.h"
@@ -23,18 +24,34 @@ AFormationCommander::AFormationCommander()
 
 void AFormationCommander::InitFormation()
 {
-	// spawn soldiers and set correct orientation
+	// get formation details from formation description
+	int width = _formDescrRef.GetDefaultObject()->defaultWidth;
+	int height = _formDescrRef.GetDefaultObject()->defaultHeight;
+	float clearance = _formDescrRef.GetDefaultObject()->agentClearance;
 
-	int numSoldiers = FormationPositions.Num();
-	for (int i = 0; i < numSoldiers; i++)
+	float halfWidth = (float)(width-1) * 0.5f;
+	float halfHeight = (float)(height-1) * 0.5f;
+
+	// loop through all required soldiers and spawn / store them
+	for (int y = 0; y < width; y++)
 	{
-		FVector location = GetActorLocation() + FormationPositions[i];
-		FRotator rotation = GetActorRotation();
+		for (int x = 0; x < height; x++)
+		{
+			FRotator rotation = GetActorRotation();
 
-		auto soldier = GetWorld()->SpawnActor<ASoldier>(SoldierRef, location, rotation);
-		soldier->MyOffset = FormationPositions[i];
-		soldier->MyCommander = this;
-		Soldiers.Add( soldier );
+			FVector relOffset = FVector(((float)x - halfHeight) * clearance, ((float)y - halfWidth) * clearance, 0.f);
+			FVector location = GetActorLocation() + rotation.RotateVector(relOffset);
+
+			auto soldier = GetWorld()->SpawnActor<ASoldier>(SoldierRef, location, rotation);
+			soldier->MyOffset = relOffset;
+			soldier->MyCommander = this;
+			
+			// store data
+			Soldiers.Emplace(soldier);
+			FormationPositions.Emplace(relOffset);
+			currentWidth = width;
+			currentHeight = height;
+		}
 	}
 }
 
@@ -85,7 +102,9 @@ void AFormationCommander::Move(float DeltaTime)
 
 		SetActorLocationAndRotation(pos, dir);
 
-		// TODO: make speed variable, depending on max soldier distance
+		//UE_LOG(LogTemp, Warning, TEXT("first pos: %s"), *CurrentPath->GetLocationAtPercentile(0.5f).ToString());
+
+		// -----------------TODO: make speed variable, depending on max soldier distance
 		pathDelta += ((150.f * DeltaTime) / CurrentPath->GetPathLength());
 	}
 }
@@ -93,22 +112,19 @@ void AFormationCommander::Move(float DeltaTime)
 void AFormationCommander::AssignSoldierOffset(const AGlobalPath* path)
 {
 	FRotator dirRotation = path->GetDirectionAtPercentile(0.f); // get starting direction
-	FVector2D dir = (FVector2D)dirRotation.Vector();
 
 	// TODO: optimize!
 	HungarianAlgorithm ha;
 	std::vector<std::vector<double>> haMatrix;
 	std::vector<int> assignmentOutput;
 	std::vector<FVector> targetPositions;
-	FVector2D rightOrientation;
-	rightOrientation.X = -dir.Y;
-	rightOrientation.Y = dir.X;
 	
 	// fill (rotated) target positions
 	int numSoldiers = FormationPositions.Num();
 	for (int i = 0; i < numSoldiers; i++)
 	{
-		FVector targetPos = FVector((dir * FormationPositions[i].X + rightOrientation * FormationPositions[i].Y), 0) + GetActorLocation();
+		FVector relLocation = dirRotation.RotateVector(FormationPositions[i]);
+		FVector targetPos = relLocation + GetActorLocation();
 		targetPositions.push_back(targetPos);
 	}
 	
@@ -133,6 +149,14 @@ void AFormationCommander::AssignSoldierOffset(const AGlobalPath* path)
 	{
 		Soldiers[i]->MyOffset = FormationPositions[assignmentOutput[i]];
 	}
+}
+
+void AFormationCommander::GetFormationSize(float& width, float& height) const
+{
+	float clearance = _formDescrRef.GetDefaultObject()->agentClearance;
+	
+	width = currentWidth * clearance;
+	height = currentHeight * clearance;
 }
 
 void AFormationCommander::SetSelectionDisplay(bool selected)

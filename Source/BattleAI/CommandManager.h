@@ -25,20 +25,20 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void HandleLeftMouseDown(class AFormationCommander* formation);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void HandleRightMouseDown();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void HandleRightMouseUp();
-
-	UFUNCTION(BlueprintCallable)
-	void HandleMouseMoved(FVector2D screenPos);
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<class AFormationCommander*> activeFormations;
-
+	
 	void ToggleSelectFormation(bool selected, AFormationCommander* formation, int index = -1);
 	void DeselectAllFormations();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class AFormationFrame* frame;
 
 public:	
 	// Called every frame

@@ -9,6 +9,7 @@
 #include "AStarSolver.h"
 #include "GlobalPath.h"
 #include "BattleAIGameState.h"
+#include "FormationCommander.h"
 
 ABattleAILevel::ABattleAILevel()
 {
@@ -77,7 +78,7 @@ void ABattleAILevel::Tick(float DeltaTime)
 	}
 }
 
-AGlobalPath* ABattleAILevel::FindGlobalPath(AGlobalPath* pathRef, FVector commanderLocation, FVector destination)
+AGlobalPath* ABattleAILevel::FindGlobalPath(AFormationCommander* commander, FVector destination)
 {
 	FVector gridCenter = floor->GetActorLocation();
 
@@ -85,31 +86,27 @@ AGlobalPath* ABattleAILevel::FindGlobalPath(AGlobalPath* pathRef, FVector comman
 	float boundY = floor->GetStaticMeshComponent()->Bounds.BoxExtent.Y;
 	float cellSize= boundX / 50.f;
 
+	FVector commanderLocation = commander->GetActorLocation();
 	int startIndexX = (int)((commanderLocation.X - gridCenter.X + boundX) / cellSize);
 	int startIndexY = (int)((commanderLocation.Y - gridCenter.Y + boundY) / cellSize);
 	int goalIndexX = (int)((destination.X - gridCenter.X + boundX) / cellSize);
 	int goalIndexY = (int)((destination.Y - gridCenter.Y + boundY) / cellSize);
 
-
+	// set the formation size and find a path
+	float formWidth, formHeight;
+	commander->GetFormationSize(formWidth, formHeight);
+	FVector2D formationBboxExtent(formWidth * 0.5f, formHeight * 0.5f);
 	std::vector<NodePosition> path;
-	FVector2D formationBboxExtent(300, 100); // hard coded for now
 	bool foundPath = pathfinder->Solve(formationBboxExtent, startIndexX + startIndexY * 100, goalIndexX + goalIndexY * 100, path);
+	
 	UWorld* world = GetWorld();
-
 	if (!foundPath)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Could not find path!"));
 		return nullptr;
 	}
 
-	pathRef->InitPath(path);
+	commander->GetCurrentPath()->InitPath(path);
 
-	//for (NodePosition pos : path)
-	//{
-	//	FVector center(pos.x, pos.y, 70);
-	//	FVector extend(cellSize / 2.f);
-	//	DrawDebugSolidBox(world, center, extend, FColor::Red, false, 100.f);
-	//}
-
-	return pathRef;
+	return commander->GetCurrentPath();
 }

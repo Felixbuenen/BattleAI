@@ -25,7 +25,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY()
 	class USplineComponent* splinePath;
+
 	std::vector<NodePosition> pathPositions;
 
 	static float CellSize;

@@ -2,15 +2,18 @@
 
 
 #include "CommandManager.h"
+#include "FormationFrame.h"
 
 #include "FormationCommander.h"
+#include "GameFramework/PlayerController.h"
+#include "Engine/World.h"
+
 
 // Sets default values
 ACommandManager::ACommandManager()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
-
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 // Called when the game starts or when spawned
@@ -24,6 +27,11 @@ void ACommandManager::BeginPlay()
 void ACommandManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	APlayerController* PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+
+	float xPos, yPos;
+	PlayerController->GetMousePosition(xPos, yPos);
 
 }
 
@@ -69,31 +77,18 @@ void ACommandManager::HandleLeftMouseDown(AFormationCommander* formation)
 	}
 }
 
-void ACommandManager::HandleRightMouseDown()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Mouse Down"));
-}
-
-void ACommandManager::HandleRightMouseUp()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Mouse Up"));
-}
-
-void ACommandManager::HandleMouseMoved(FVector2D screenPos)
-{
-
-}
-
 void ACommandManager::ToggleSelectFormation(bool selected, AFormationCommander* formation, int index)
 {
 	formation->SetSelectionDisplay(selected);
 	if (selected)
 	{
 		activeFormations.Emplace(formation);
+		//frame->UpdateActiveFormations(activeFormations);
 	}
 	else
 	{
 		activeFormations.Remove(formation);
+		//frame->UpdateActiveFormations(activeFormations);
 	}
 }
 
@@ -105,4 +100,5 @@ void ACommandManager::DeselectAllFormations()
 	}
 
 	activeFormations.Empty();
+	//frame->UpdateActiveFormations(activeFormations);
 }
