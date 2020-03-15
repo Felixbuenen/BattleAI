@@ -33,10 +33,16 @@ protected:
 	UPROPERTY()
 	class AGlobalPath* CurrentPath;
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+	TSubclassOf<class UFormationDescription> _formDescrRef;
+
 	TArray<FVector> FormationPositions; // describes the current relative offset for each soldier 
 	int currentWidth, currentHeight;    // describes the current widht / height (num soldiers) of the formation
 
 	float pathDelta = 0.f;
+
+	FVector TargetLocation;
+	FRotator TargetRotation;
 
 public:	
 	// Called every frame
@@ -54,10 +60,22 @@ public:
 	UFUNCTION(BlueprintCallable)
 	AGlobalPath* GetCurrentPath() const { return CurrentPath; }
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-	TSubclassOf<class UFormationDescription> _formDescrRef; 
+	UFormationDescription* GetFormationDescription() const;
+	int GetNumSoldiers() const { return (int)Soldiers.Num(); }
 	
 	void SetCurrentPath(AGlobalPath* path) { CurrentPath = path; }
 	void GetFormationSize(float& width, float& height) const;
 	void SetSelectionDisplay(bool selected);
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetTargetLocation() const { return TargetLocation; }
+	void SetTargetLocation(FVector targetLocation) { TargetLocation = targetLocation; }
+
+	UFUNCTION(BlueprintCallable)
+	const TArray<FVector>& GetFormaitonPositions() const { return FormationPositions; }
+	void SetFormationPositions(const TArray<FVector>& formPos) { FormationPositions = formPos; }
+
+	UFUNCTION(BlueprintCallable)
+	const FRotator& GetTargetRotation() const { return TargetRotation; }
+	void SetTargetRotation(FRotator targetRotation) { TargetRotation = targetRotation; }
 };

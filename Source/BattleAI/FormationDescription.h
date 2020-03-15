@@ -31,5 +31,5 @@ public:
 	int maxSoldiers;
 
 	// returns, given a certain width, the appropriate formation
-	TArray<FVector2D> GetFormationFromWidth(float width, int numSoldiers, FVector2D& outBBox);
+	TArray<FVector> GetFormationFromWidth(float width, int numSoldiers, FVector2D& outBBox);
 };

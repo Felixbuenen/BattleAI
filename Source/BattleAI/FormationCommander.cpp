@@ -167,3 +167,8 @@ void AFormationCommander::SetSelectionDisplay(bool selected)
 		decal->SetVisibility(selected);
 	}
 }
+
+UFormationDescription* AFormationCommander::GetFormationDescription() const
+{
+	return _formDescrRef.GetDefaultObject();
+}

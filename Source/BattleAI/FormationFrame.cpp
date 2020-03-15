@@ -3,10 +3,12 @@
 
 #include "FormationFrame.h"
 #include "FormationCommander.h"
+#include "FormationDescription.h"
 
 #include "Components/BoxComponent.h"
 #include "Components/SceneComponent.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
@@ -39,7 +41,7 @@ void AFormationFrame::BeginPlay()
 	
 	FrameCollider->OnComponentBeginOverlap.AddDynamic(this, &AFormationFrame::HandleWallOverlap);
 	FrameCollider->OnComponentEndOverlap.AddDynamic(this, &AFormationFrame::HandleWallExit);
-	//FrameCollider->Deactivate();
+	FrameCollider->Deactivate();
 }
 
 // Called every frame
@@ -63,28 +65,127 @@ void AFormationFrame::Init(const FVector& begin, const FVector& end, const TArra
 {
 	UE_LOG(LogTemp, Warning, TEXT("Init frame"));
 
+	FrameCollider->Activate();
+
+	// <<<<<< TODO >>>>>>>
+	// * init decal textures
+
 	SetActorLocation(begin);
 	frameBegin = begin;
 	Update(end);
 
 	activeFormations = forms;
+
+	// initialize output data
+	targetLocations.Empty();
+	targetSoldierLocations.Empty();
+	targetLocations.SetNum(activeFormations.Num());
+	targetSoldierLocations.SetNum(activeFormations.Num());
 }
 
 void AFormationFrame::Update(const FVector& pos)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Updating frame..."));
+	FVector posDiff = (pos - frameBegin);
+	float dragWidth = posDiff.Size();
 
-	FVector extent = (pos - frameBegin) * 0.5f;
-	extent.Z = frameHeight;
-	FrameCollider->SetRelativeLocation(FVector(extent.X, extent.Y, frameHeight / 2.f));
+	//float minWidth = 0, maxWidth = 0;
+	float totalWidth = 0.f;
+	float totalLength = 0.f;
+
+	// clamp formation width to min / max widths
+	int numForms = (int)activeFormations.Num();
+	float spaceLeft = dragWidth;
+
+	TArray<FVector2D> outBboxes;
+	outBboxes.SetNum(numForms);
+	for(int i = 0; i < numForms; i++)
+	{
+		AFormationCommander* comm = activeFormations[i];
+		UFormationDescription* descr = comm->GetFormationDescription();
+
+		float availableSpace = spaceLeft / (numForms - i);
+		
+		targetSoldierLocations[i] = descr->GetFormationFromWidth(availableSpace, comm->GetNumSoldiers(), outBboxes[i]);
+
+		// update bounding box properties
+		spaceLeft -= outBboxes[i].Y;
+		totalLength = outBboxes[i].X > totalLength ? outBboxes[i].X : totalLength;
+		totalWidth += outBboxes[i].Y;
+
+		// <<<<<< TODO >>>>>>
+		// * set decal texture positions
+
+		if ((i + 1) < numForms) totalWidth += formationPadding;
+	}
+
+	// set size
+	float YExtent = totalWidth * 0.5f;
+	float XExtent = totalLength * 0.5f;
+
+	//UE_LOG(LogTemp, Warning, TEXT("x extent: %f"), XExtent);
+	//UE_LOG(LogTemp, Warning, TEXT("y extent: %f"), YExtent);
+
+	FVector extent(XExtent, YExtent, frameHeight);
 	FrameCollider->SetBoxExtent(extent, true);
 
-	//DrawDebugSolidBox(GetWorld(), FrameCollider->GetComponentLocation(), FrameCollider->GetScaledBoxExtent(), FColor::Red, false);
+	// set location
+	posDiff.Normalize();
+	FVector relLoc = posDiff * YExtent;
+	FrameCollider->SetRelativeLocation(FVector(relLoc.X, relLoc.Y, extent.Z * .5f));
+	
+	// set rotation
+	FVector right = posDiff;
+	FRotator rot = UKismetMathLibrary::MakeRotFromYZ(right, FVector(0.f, 0.f, 1.f));
+	FrameCollider->SetRelativeRotation(rot.Quaternion());
+
+	// update output data
+	FVector rightVec = FrameCollider->GetRightVector();
+	FVector leftEdge = FrameCollider->GetComponentLocation() - YExtent * rightVec;
+	for (int i = 0; i < numForms; i++)
+	{
+		FVector pos = leftEdge + rightVec * outBboxes[i].Y * 0.5f;
+		targetLocations[i] = pos;
+
+		UE_LOG(LogTemp, Warning, TEXT("target loc: x: %f, y: %f"), pos.X, pos.Y);
+
+		leftEdge += rightVec * outBboxes[i].Y + formationPadding;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("asdfasdfsadfsf"));
+
+	// update ouptut rotation
+	targetRotation = rot;
 }
 
-void AFormationFrame::Stop()
+void AFormationFrame::Stop(bool cancel)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Stop frame"));
 
-	//FrameCollider->Deactivate();
+	if (cancel)
+	{
+		return;
+	}
+	else
+	{
+		// set actual formation positions for this formation
+		// <<<<< TODO >>>>>
+		// basically only: 
+		// * determine commander mid position in formation
+		// * order commander to go to this location, and pass him the new relative soldier positions
+
+		// inform commanders about target location and corresponding relative soldier positions
+		int numFormations = activeFormations.Num();
+		for (int i = 0; i < numFormations; i++)
+		{
+			activeFormations[i]->SetTargetLocation(targetLocations[i]);
+			activeFormations[i]->SetFormationPositions(targetSoldierLocations[i]);
+			activeFormations[i]->SetTargetRotation(targetRotation);
+
+			UE_LOG(LogTemp, Warning, TEXT("[%d] target location: x: %f, y: %f"), i, targetLocations[i].X, targetLocations[i].Y);
+		}
+	}
+
+	// <<<<<< TODO >>>>>>>
+	// * remove decal textures
+
+	FrameCollider->Deactivate();
 }
