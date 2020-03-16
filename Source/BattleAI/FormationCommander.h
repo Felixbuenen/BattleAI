@@ -57,6 +57,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void MoveToLocation();
 
+	void MoveToOrientation();
+
 	UFUNCTION(BlueprintCallable)
 	AGlobalPath* GetCurrentPath() const { return CurrentPath; }
 

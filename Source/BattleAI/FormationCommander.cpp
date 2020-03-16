@@ -92,6 +92,11 @@ void AFormationCommander::Move(float DeltaTime)
 		if (pathDelta > 0.995f) // ugly... should probably be included in the GlobalPath object
 		{
 			isMoving = false;
+
+			// for now: directly set rotation
+			//SetActorRotation(CurrentPath->GetDirectionAtPercentile(1.f));
+			MoveToOrientation();
+
 			return;
 		}
 		FRotator dir = CurrentPath->GetDirectionAtPercentile(pathDelta);
@@ -108,6 +113,22 @@ void AFormationCommander::Move(float DeltaTime)
 		pathDelta += ((150.f * DeltaTime) / CurrentPath->GetPathLength());
 	}
 }
+
+void AFormationCommander::MoveToOrientation()
+{
+	TargetRotation.Roll = 0.f;
+	TargetRotation.Pitch = 0.f;
+	TargetLocation.Z = GetActorLocation().Z;
+	SetActorLocationAndRotation(TargetLocation, TargetRotation);
+
+	// order soldiers to go to their final location and go into orientation
+	int numSoldiers = Soldiers.Num();
+	for (int i = 0; i < numSoldiers; i++)
+	{
+		Soldiers[i]->GoToFinalLocationAndOrientation(TargetLocation, TargetRotation);
+	}
+}
+
 
 void AFormationCommander::AssignSoldierOffset(const AGlobalPath* path)
 {

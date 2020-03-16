@@ -26,6 +26,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void GoToFinalLocationAndOrientation(FVector commLocation, FRotator commOrientation);
+
 	UPROPERTY(BlueprintReadOnly)
 	FVector MyOffset;
 

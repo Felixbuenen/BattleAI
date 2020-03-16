@@ -146,7 +146,7 @@ void AFormationFrame::Update(const FVector& pos)
 		FVector pos = leftEdge + rightVec * outBboxes[i].Y * 0.5f;
 		targetLocations[i] = pos;
 
-		UE_LOG(LogTemp, Warning, TEXT("target loc: x: %f, y: %f"), pos.X, pos.Y);
+		//UE_LOG(LogTemp, Warning, TEXT("target loc: x: %f, y: %f"), pos.X, pos.Y);
 
 		leftEdge += rightVec * outBboxes[i].Y + formationPadding;
 	}
@@ -158,7 +158,7 @@ void AFormationFrame::Update(const FVector& pos)
 
 void AFormationFrame::Stop(bool cancel)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Stop frame"));
+	//UE_LOG(LogTemp, Warning, TEXT("Stop frame"));
 
 	if (cancel)
 	{
@@ -180,7 +180,7 @@ void AFormationFrame::Stop(bool cancel)
 			activeFormations[i]->SetFormationPositions(targetSoldierLocations[i]);
 			activeFormations[i]->SetTargetRotation(targetRotation);
 
-			UE_LOG(LogTemp, Warning, TEXT("[%d] target location: x: %f, y: %f"), i, targetLocations[i].X, targetLocations[i].Y);
+			//UE_LOG(LogTemp, Warning, TEXT("[%d] target location: x: %f, y: %f"), i, targetLocations[i].X, targetLocations[i].Y);
 		}
 	}
 
