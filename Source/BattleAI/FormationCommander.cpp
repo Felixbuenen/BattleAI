@@ -129,6 +129,7 @@ void AFormationCommander::MoveToOrientation()
 	int numSoldiers = Soldiers.Num();
 	for (int i = 0; i < numSoldiers; i++)
 	{
+		Soldiers[i]->GetCharacterMovement()->MaxWalkSpeed = 200.f; // hard coded for now
 		Soldiers[i]->GoToFinalLocationAndOrientation(TargetLocation, TargetRotation);
 	}
 }
