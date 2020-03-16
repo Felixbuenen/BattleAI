@@ -27,6 +27,7 @@ protected:
 
 	void InitFormation();
 	void Move(float DeltaTime);
+	void AssignSoldierOffsetInternal(FRotator orientation) const;
 
 	TSubclassOf<class ASoldier> SoldierRef;
 

@@ -116,10 +116,14 @@ void AFormationCommander::Move(float DeltaTime)
 
 void AFormationCommander::MoveToOrientation()
 {
+	// set final position / orientation of commander
 	TargetRotation.Roll = 0.f;
 	TargetRotation.Pitch = 0.f;
 	TargetLocation.Z = GetActorLocation().Z;
 	SetActorLocationAndRotation(TargetLocation, TargetRotation);
+
+	// update soldier relative offset
+	AssignSoldierOffsetInternal(TargetRotation);
 
 	// order soldiers to go to their final location and go into orientation
 	int numSoldiers = Soldiers.Num();
@@ -133,22 +137,26 @@ void AFormationCommander::MoveToOrientation()
 void AFormationCommander::AssignSoldierOffset(const AGlobalPath* path)
 {
 	FRotator dirRotation = path->GetDirectionAtPercentile(0.f); // get starting direction
+	AssignSoldierOffsetInternal(dirRotation);
+}
 
+void AFormationCommander::AssignSoldierOffsetInternal(FRotator orientation) const
+{
 	// TODO: optimize!
 	HungarianAlgorithm ha;
 	std::vector<std::vector<double>> haMatrix;
 	std::vector<int> assignmentOutput;
 	std::vector<FVector> targetPositions;
-	
+
 	// fill (rotated) target positions
 	int numSoldiers = FormationPositions.Num();
 	for (int i = 0; i < numSoldiers; i++)
 	{
-		FVector relLocation = dirRotation.RotateVector(FormationPositions[i]);
+		FVector relLocation = orientation.RotateVector(FormationPositions[i]);
 		FVector targetPos = relLocation + GetActorLocation();
 		targetPositions.push_back(targetPos);
 	}
-	
+
 	// fill the assignment matrix (hungarian algorithm)
 	for (int row = 0; row < numSoldiers; row++)
 	{
@@ -171,6 +179,7 @@ void AFormationCommander::AssignSoldierOffset(const AGlobalPath* path)
 		Soldiers[i]->MyOffset = FormationPositions[assignmentOutput[i]];
 	}
 }
+
 
 void AFormationCommander::GetFormationSize(float& width, float& height) const
 {
