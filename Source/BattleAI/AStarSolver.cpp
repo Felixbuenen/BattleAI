@@ -113,6 +113,8 @@ bool UAStarSolver::Solve(const FVector2D bboxExtent, const int start, const int 
 	}
 
 	float formationRadius = bboxExtent.Size();
+	UE_LOG(LogTemp, Error, TEXT("BBOX WIDTH: %f, HEIGHT: %f"), bboxExtent.Y, bboxExtent.X);
+
 
 	Node* goalNode = grid[goal];
 	UE_LOG(LogTemp, Warning, TEXT("goal node pos = (%f, %f)"), goalNode->x, goalNode->y);

@@ -30,13 +30,14 @@ protected:
 	void HandleWallExit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	const float frameHeight = 64.f;
-	const float formationPadding = 100.f;
+	const float formationPadding = 200.f;
 	FVector frameBegin;
 	TArray<class AFormationCommander*> activeFormations;
 
 	// todo: make struct
 	TArray<FVector> targetLocations;
 	TArray<TArray<FVector>> targetSoldierLocations;
+	TArray<FVector2D> formBboxes;
 	FRotator targetRotation;
 
 public:	
@@ -51,4 +52,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Stop(bool cancel);
+
+	const TArray<TArray<FVector>>& GetTargetSoldierLocations() const { return targetSoldierLocations; }
+	const TArray<FVector>& GetCommanderTargetLocations() const { return targetLocations; }
+	const FRotator& GetTargetRotation() const { return targetRotation; }
 };

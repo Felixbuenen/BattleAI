@@ -63,24 +63,24 @@ void AFormationFrame::HandleWallExit(UPrimitiveComponent* OverlappedComp, AActor
 
 void AFormationFrame::Init(const FVector& begin, const FVector& end, const TArray<AFormationCommander*> forms)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Init frame"));
-
 	FrameCollider->Activate();
 
 	// <<<<<< TODO >>>>>>>
 	// * init decal textures
-
-	SetActorLocation(begin);
-	frameBegin = begin;
-	Update(end);
 
 	activeFormations = forms;
 
 	// initialize output data
 	targetLocations.Empty();
 	targetSoldierLocations.Empty();
+	formBboxes.Empty();
 	targetLocations.SetNum(activeFormations.Num());
 	targetSoldierLocations.SetNum(activeFormations.Num());
+	formBboxes.SetNum(activeFormations.Num());
+
+	SetActorLocation(begin);
+	frameBegin = begin;
+	Update(end);
 }
 
 void AFormationFrame::Update(const FVector& pos)
@@ -94,26 +94,22 @@ void AFormationFrame::Update(const FVector& pos)
 
 	// clamp formation width to min / max widths
 	int numForms = (int)activeFormations.Num();
-	float spaceLeft = dragWidth;
+	float spacePerFormation = dragWidth / (float)numForms;
+	//float spaceLeft = dragWidth;
 
-	TArray<FVector2D> outBboxes;
-	outBboxes.SetNum(numForms);
 	for(int i = 0; i < numForms; i++)
 	{
 		AFormationCommander* comm = activeFormations[i];
 		UFormationDescription* descr = comm->GetFormationDescription();
 
-		float availableSpace = spaceLeft / (numForms - i);
+		//float availableSpace = spaceLeft / (numForms - i);
 		
-		targetSoldierLocations[i] = descr->GetFormationFromWidth(availableSpace, comm->GetNumSoldiers(), outBboxes[i]);
+		targetSoldierLocations[i] = descr->GetFormationFromWidth(spacePerFormation, comm->GetNumSoldiers(), formBboxes[i]);
 
 		// update bounding box properties
-		spaceLeft -= outBboxes[i].Y;
-		totalLength = outBboxes[i].X > totalLength ? outBboxes[i].X : totalLength;
-		totalWidth += outBboxes[i].Y;
-
-		// <<<<<< TODO >>>>>>
-		// * set decal texture positions
+		//spaceLeft -= formBboxes[i].Y;
+		totalLength = formBboxes[i].X > totalLength ? formBboxes[i].X : totalLength;
+		totalWidth += formBboxes[i].Y;
 
 		if ((i + 1) < numForms) totalWidth += formationPadding;
 	}
@@ -121,9 +117,6 @@ void AFormationFrame::Update(const FVector& pos)
 	// set size
 	float YExtent = totalWidth * 0.5f;
 	float XExtent = totalLength * 0.5f;
-
-	//UE_LOG(LogTemp, Warning, TEXT("x extent: %f"), XExtent);
-	//UE_LOG(LogTemp, Warning, TEXT("y extent: %f"), YExtent);
 
 	FVector extent(XExtent, YExtent, frameHeight);
 	FrameCollider->SetBoxExtent(extent, true);
@@ -143,14 +136,11 @@ void AFormationFrame::Update(const FVector& pos)
 	FVector leftEdge = FrameCollider->GetComponentLocation() - YExtent * rightVec;
 	for (int i = 0; i < numForms; i++)
 	{
-		FVector pos = leftEdge + rightVec * outBboxes[i].Y * 0.5f;
+		FVector pos = leftEdge + rightVec * formBboxes[i].Y * 0.5f;
 		targetLocations[i] = pos;
 
-		//UE_LOG(LogTemp, Warning, TEXT("target loc: x: %f, y: %f"), pos.X, pos.Y);
-
-		leftEdge += rightVec * outBboxes[i].Y + formationPadding;
+		leftEdge += rightVec * (formBboxes[i].Y + formationPadding);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("asdfasdfsadfsf"));
 
 	// update ouptut rotation
 	targetRotation = rot;
@@ -169,8 +159,7 @@ void AFormationFrame::Stop(bool cancel)
 		// set actual formation positions for this formation
 		// <<<<< TODO >>>>>
 		// basically only: 
-		// * determine commander mid position in formation
-		// * order commander to go to this location, and pass him the new relative soldier positions
+		// * make sure commander gets assigned correct location (and not the one of some other commander)
 
 		// inform commanders about target location and corresponding relative soldier positions
 		int numFormations = activeFormations.Num();
@@ -179,13 +168,10 @@ void AFormationFrame::Stop(bool cancel)
 			activeFormations[i]->SetTargetLocation(targetLocations[i]);
 			activeFormations[i]->SetFormationPositions(targetSoldierLocations[i]);
 			activeFormations[i]->SetTargetRotation(targetRotation);
-
+			activeFormations[i]->SetFormationBoundingBox(formBboxes[i]);
 			//UE_LOG(LogTemp, Warning, TEXT("[%d] target location: x: %f, y: %f"), i, targetLocations[i].X, targetLocations[i].Y);
 		}
 	}
-
-	// <<<<<< TODO >>>>>>>
-	// * remove decal textures
 
 	FrameCollider->Deactivate();
 }

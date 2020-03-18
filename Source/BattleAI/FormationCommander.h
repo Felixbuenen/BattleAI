@@ -44,6 +44,7 @@ protected:
 
 	FVector TargetLocation;
 	FRotator TargetRotation;
+	FVector2D FormBbox;
 
 public:	
 	// Called every frame
@@ -81,4 +82,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	const FRotator& GetTargetRotation() const { return TargetRotation; }
 	void SetTargetRotation(FRotator targetRotation) { TargetRotation = targetRotation; }
+
+	const FVector2D& GetFormationBoundingBox() const { return FormBbox; }
+	void SetFormationBoundingBox(FVector2D formBbox) { FormBbox = formBbox; }
 };

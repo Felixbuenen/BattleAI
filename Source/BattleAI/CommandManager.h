@@ -18,7 +18,23 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool multiSelect;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	class UMaterial* targetLocDecalRef;
+
+	UFUNCTION(BlueprintCallable)
+	void InitTargetLocationDisplay();
+
+	UFUNCTION(BlueprintCallable)
+	void StopTargetLocationDisplay();
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateTargetLocationDisplay();
+
 protected:
+
+	UPROPERTY()
+	TArray<UDecalComponent*> targetLocDecals;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -39,6 +55,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class AFormationFrame* frame;
+
 
 public:	
 	// Called every frame

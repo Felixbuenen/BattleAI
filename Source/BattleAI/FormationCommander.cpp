@@ -92,9 +92,6 @@ void AFormationCommander::Move(float DeltaTime)
 		if (pathDelta > 0.995f) // ugly... should probably be included in the GlobalPath object
 		{
 			isMoving = false;
-
-			// for now: directly set rotation
-			//SetActorRotation(CurrentPath->GetDirectionAtPercentile(1.f));
 			MoveToOrientation();
 
 			return;
@@ -106,8 +103,6 @@ void AFormationCommander::Move(float DeltaTime)
 		dir.Pitch = 0.f;
 
 		SetActorLocationAndRotation(pos, dir);
-
-		//UE_LOG(LogTemp, Warning, TEXT("first pos: %s"), *CurrentPath->GetLocationAtPercentile(0.5f).ToString());
 
 		// -----------------TODO: make speed variable, depending on max soldier distance
 		pathDelta += ((150.f * DeltaTime) / CurrentPath->GetPathLength());
@@ -129,7 +124,7 @@ void AFormationCommander::MoveToOrientation()
 	int numSoldiers = Soldiers.Num();
 	for (int i = 0; i < numSoldiers; i++)
 	{
-		Soldiers[i]->GetCharacterMovement()->MaxWalkSpeed = 200.f; // hard coded for now
+		Soldiers[i]->GetCharacterMovement()->MaxWalkSpeed = 200.f; // TODO: hard coded for now, make smarter
 		Soldiers[i]->GoToFinalLocationAndOrientation(TargetLocation, TargetRotation);
 	}
 }
@@ -184,10 +179,8 @@ void AFormationCommander::AssignSoldierOffsetInternal(FRotator orientation) cons
 
 void AFormationCommander::GetFormationSize(float& width, float& height) const
 {
-	float clearance = _formDescrRef.GetDefaultObject()->agentClearance;
-	
-	width = currentWidth * clearance;
-	height = currentHeight * clearance;
+	width = FormBbox.Y;
+	height = FormBbox.X;
 }
 
 void AFormationCommander::SetSelectionDisplay(bool selected)
