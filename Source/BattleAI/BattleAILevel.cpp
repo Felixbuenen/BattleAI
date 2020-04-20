@@ -26,19 +26,19 @@ void ABattleAILevel::InitPathfindingInfo()
 	levelBoundY = floor->GetStaticMeshComponent()->Bounds.BoxExtent.Y;
 	origin = floor->GetActorLocation();
 
-	CellExtent = levelBoundX / 100.f;
+	CellExtent = levelBoundX / (float)gridDimension;
 
-	pathfinder->Init(100, 100, CellExtent * 2, floor);
+	pathfinder->Init(gridDimension, gridDimension, CellExtent * 2, floor);
 	AGlobalPath::SetCellSize(CellExtent * 2);
 	
 	// calculate clearance
 	const UWorld* world = GetWorld();
-	for (int x = 0; x < 100; x++)
+	for (int x = 0; x < gridDimension; x++)
 	{
-		for (int y = 0; y < 100; y++)
+		for (int y = 0; y < gridDimension; y++)
 		{
-			int clearance = CalculateClearance(pathfinder->GetPosition(x + y * 100), FVector(CellExtent));
-			pathfinder->SetClearance(clearance, x + y * 100);
+			int clearance = CalculateClearance(pathfinder->GetPosition(x + y * gridDimension), FVector(CellExtent));
+			pathfinder->SetClearance(clearance, x + y * gridDimension);
 		}
 	}
 }
@@ -51,16 +51,16 @@ void ABattleAILevel::Tick(float DeltaTime)
 	{
 		const UWorld* world = GetWorld();
 
-		for (int x = 0; x < 100; x++)
+		for (int x = 0; x < gridDimension; x++)
 		{
-			for (int y = 0; y < 100; y++)
+			for (int y = 0; y < gridDimension; y++)
 			{
 				//FVector center(x * CellExtent * 2 - levelBoundX + CellExtent, y * CellExtent * 2 - levelBoundY + CellExtent, 70);
-				FVector center = pathfinder->GetPosition(x + y * 100);
+				FVector center = pathfinder->GetPosition(x + y * gridDimension);
 				center.Z = 70.f;
 				FVector extend(CellExtent);
 
-				int clearance = pathfinder->GetClearance(x + y * 100);
+				int clearance = pathfinder->GetClearance(x + y * gridDimension);
 
 				const int maxSearchDepth = 20;
 				FColor clr = FColor::MakeRedToGreenColorFromScalar(clearance / (float)(maxSearchDepth));
@@ -84,7 +84,7 @@ AGlobalPath* ABattleAILevel::FindGlobalPath(AFormationCommander* commander, FVec
 
 	float boundX = floor->GetStaticMeshComponent()->Bounds.BoxExtent.X;
 	float boundY = floor->GetStaticMeshComponent()->Bounds.BoxExtent.Y;
-	float cellSize= boundX / 50.f;
+	float cellSize = CellExtent * 2.f;
 
 	FVector commanderLocation = commander->GetActorLocation();
 	int startIndexX = (int)((commanderLocation.X - gridCenter.X + boundX) / cellSize);
@@ -97,7 +97,7 @@ AGlobalPath* ABattleAILevel::FindGlobalPath(AFormationCommander* commander, FVec
 	commander->GetFormationSize(formWidth, formHeight);
 	FVector2D formationBboxExtent(formWidth * 0.5f, formHeight * 0.5f);
 	std::vector<NodePosition> path;
-	bool foundPath = pathfinder->Solve(formationBboxExtent, startIndexX + startIndexY * 100, goalIndexX + goalIndexY * 100, path);
+	bool foundPath = pathfinder->Solve(formationBboxExtent, startIndexX, startIndexY, goalIndexX, goalIndexY, path);
 	
 	UWorld* world = GetWorld();
 	if (!foundPath)

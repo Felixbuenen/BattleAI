@@ -44,14 +44,15 @@ int UAStarSolver::GetClearance(int index) const
 void UAStarSolver::Init(const int width, const int height, const int cellSize, const AActor* gridObject)
 {
 	this->cellSize = cellSize;
+	this->gridDimension = width; // TODO: change width / height to dimension
 
 	FVector origin = gridObject->GetActorLocation();
-	int leftEdge = origin.X - (width * cellSize / 2);
-	int upperEdge = origin.Y - (height * cellSize / 2);
+	int leftEdge = origin.X - (gridDimension * cellSize / 2);
+	int upperEdge = origin.Y - (gridDimension * cellSize / 2);
 	float extent = cellSize / 2.f;
-	for (int y = 0; y < height; y++)
+	for (int y = 0; y < gridDimension; y++)
 	{
-		for (int x = 0; x < width; x++)
+		for (int x = 0; x < gridDimension; x++)
 		{
 			Node* node = new Node();
 			node->x = leftEdge + x * cellSize + extent;
@@ -62,27 +63,30 @@ void UAStarSolver::Init(const int width, const int height, const int cellSize, c
 	}
 
 	// init neighbors
-	for (int y = 0; y < height; y++)
+	for (int y = 0; y < gridDimension; y++)
 	{
-		for (int x = 0; x < width; x++)
+		for (int x = 0; x < gridDimension; x++)
 		{
-			Node* node = grid[x + y * width];
+			Node* node = grid[x + y * gridDimension];
 
-			if (x > 0 && y > 0) node->neighbors.push_back(grid[x - 1 + (y-1) * width]);
-			if (y > 0) node->neighbors.push_back(grid[x + (y - 1) * width]);
-			if (x < (width-1) && y > 0) node->neighbors.push_back(grid[x + 1 + (y-1) * width]);
-			if (x > 0) node->neighbors.push_back(grid[x - 1 + y * width]);
-			if (x < (width - 1)) node->neighbors.push_back(grid[x + 1 + y * width]);
-			if (x > 0 && y < (height - 1)) node->neighbors.push_back(grid[x-1 + (y + 1) * width]);
-			if (y < (height - 1)) node->neighbors.push_back(grid[x + (y + 1) * width]);
-			if (x < (width - 1) && y < (height - 1)) node->neighbors.push_back(grid[x + 1 + (y + 1) * width]);
+			if (x > 0 && y > 0) node->neighbors.push_back(grid[x - 1 + (y-1) * gridDimension]);
+			if (y > 0) node->neighbors.push_back(grid[x + (y - 1) * gridDimension]);
+			if (x < (gridDimension -1) && y > 0) node->neighbors.push_back(grid[x + 1 + (y-1) * gridDimension]);
+			if (x > 0) node->neighbors.push_back(grid[x - 1 + y * gridDimension]);
+			if (x < (gridDimension - 1)) node->neighbors.push_back(grid[x + 1 + y * gridDimension]);
+			if (x > 0 && y < (gridDimension - 1)) node->neighbors.push_back(grid[x-1 + (y + 1) * gridDimension]);
+			if (y < (gridDimension - 1)) node->neighbors.push_back(grid[x + (y + 1) * gridDimension]);
+			if (x < (gridDimension - 1) && y < (gridDimension - 1)) node->neighbors.push_back(grid[x + 1 + (y + 1) * gridDimension]);
 		}
 	}
 }
 
 // reference used: https://github.com/OneLoneCoder/videos/blob/master/OneLoneCoder_PathFinding_AStar.cpp
-bool UAStarSolver::Solve(const FVector2D bboxExtent, const int start, const int goal, std::vector<NodePosition>& outPath)
+bool UAStarSolver::Solve(const FVector2D bboxExtent, const int startX, const int startY, const int goalX, const int goalY, std::vector<NodePosition>& outPath)
 {
+	int start = startX + startY * gridDimension;
+	int goal = goalX + goalY * gridDimension;
+
 	UE_LOG(LogTemp, Error, TEXT("start: %d, goal: %d"), start, goal);
 
 	if (start == goal) {

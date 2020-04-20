@@ -58,7 +58,7 @@ public:
 	~UAStarSolver();
 	
 	void Init(const int width, const int height, const int cellSize, const AActor* gridObject);
-	bool Solve(const FVector2D bboxExtent, const int start, const int goal, std::vector<NodePosition>& outPath);
+	bool Solve(const FVector2D bboxExtent, const int startX, const int startY, const int goalX, const int goalY, std::vector<NodePosition>& outPath);
 	void SetClearance(int clearance, int index);
 
 	FORCEINLINE FVector GetPosition(int index) const;
@@ -74,5 +74,6 @@ private:
 	Direction GetCurrentDirection(float fromX, float toX, float fromY, float toY) const; // replace by lookup
 
 	class USphereComponent* sphereCollider;
+	int gridDimension;
 	float cellSize;
 };

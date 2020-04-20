@@ -35,6 +35,9 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere)
+	int gridDimension = 110;
+	
 	float CellExtent;
 	float levelBoundX;
 	float levelBoundY;
