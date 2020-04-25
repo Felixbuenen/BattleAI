@@ -54,11 +54,13 @@ void AFormationFrame::Tick(float DeltaTime)
 void AFormationFrame::HandleWallOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Enter wall"));
+	positionValid = false;
 }
 
 void AFormationFrame::HandleWallExit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Exit wall"));
+	positionValid = true;
 }
 
 void AFormationFrame::Init(const FVector& begin, const FVector& end, const TArray<AFormationCommander*> forms)
@@ -78,9 +80,11 @@ void AFormationFrame::Init(const FVector& begin, const FVector& end, const TArra
 	targetSoldierLocations.SetNum(activeFormations.Num());
 	formBboxes.SetNum(activeFormations.Num());
 
-	SetActorLocation(begin);
+
 	frameBegin = begin;
 	Update(end);
+
+	SetActorLocation(begin);
 }
 
 void AFormationFrame::Update(const FVector& pos)

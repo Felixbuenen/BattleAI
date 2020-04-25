@@ -2,6 +2,7 @@
 
 #pragma once
 
+#define SQRT_TWO 1.41421356
 
 #include <vector>
 
@@ -28,19 +29,6 @@ struct NodePosition
 	int x, y;
 };
 
-enum Direction
-{
-	NW,
-	N,
-	NE,
-	W,
-	C,
-	E,
-	SW,
-	S,
-	SE
-};
-
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "AStarSolver.generated.h" 
@@ -65,15 +53,23 @@ public:
 	FORCEINLINE int GetClearance(int index) const;
 	FORCEINLINE std::vector<Node*> GetGrid() const { return grid; }
 
+	void DrawDivisions(const UWorld* world, const FVector2D bboxExtent, const FVector2D dir, const int startX, const int startY) const;
+
 private:
 
 	FORCEINLINE int Heuristic(const Node* from, const Node* to) const;
 	FORCEINLINE int distance(const Node* from, const Node* to) const;
+	FORCEINLINE int GetIndex(const FVector2D& position) const;
+
+	FORCEINLINE bool TestClearance(const float formRadius, const float clearance, const FVector2D& extent, const FVector2D position, const FVector2D& dir, int depth = 0, const UWorld* world = nullptr) const;
+	bool DivideFormation(const FVector2D& extent, const FVector2D position, const FVector2D& dir, FVector2D& outExtent, FVector2D& outPosLeft, FVector2D& outPosRight, int& outIndexLeft, int& outIndexRight, float& outClearanceLeft, float& outClearanceRight) const;
 	std::vector<NodePosition> CreatePath(Node* start, Node* goal);
 	std::vector<Node*> grid;
-	Direction GetCurrentDirection(float fromX, float toX, float fromY, float toY) const; // replace by lookup
 
-	class USphereComponent* sphereCollider;
 	int gridDimension;
 	float cellSize;
+	int leftEdge;
+	int upperEdge;
+	int maxGridIndex;
+	const int maxDepth = 3; // TODO: make define
 };

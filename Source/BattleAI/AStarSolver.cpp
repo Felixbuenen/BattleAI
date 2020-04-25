@@ -11,11 +11,11 @@
 
 #include "WorldCollision.h"
 #include "Components/SphereComponent.h"
+#include "DrawDebugHelpers.h"
+#include "Engine/World.h"
 
 UAStarSolver::UAStarSolver()
 {
-	sphereCollider = CreateDefaultSubobject<USphereComponent>(TEXT("sphere collider"));
-	sphereCollider->SetSphereRadius(500.f);
 }
 
 UAStarSolver::~UAStarSolver()
@@ -36,6 +36,16 @@ FVector UAStarSolver::GetPosition(int index) const
 	return FVector(grid[index]->x, grid[index]->y, 0.f);
 }
 
+int UAStarSolver::GetIndex(const FVector2D& position) const
+{
+	float cellExtent = cellSize * 0.5f;
+
+	int x = (position.X - leftEdge - cellExtent) / cellSize;
+	int y = (position.Y - upperEdge - cellExtent) / cellSize;
+
+	return (x + y * gridDimension);
+}
+
 int UAStarSolver::GetClearance(int index) const
 {
 	return grid[index]->clearance;
@@ -47,8 +57,8 @@ void UAStarSolver::Init(const int width, const int height, const int cellSize, c
 	this->gridDimension = width; // TODO: change width / height to dimension
 
 	FVector origin = gridObject->GetActorLocation();
-	int leftEdge = origin.X - (gridDimension * cellSize / 2);
-	int upperEdge = origin.Y - (gridDimension * cellSize / 2);
+	leftEdge = origin.X - (gridDimension * cellSize / 2);
+	upperEdge = origin.Y - (gridDimension * cellSize / 2);
 	float extent = cellSize / 2.f;
 	for (int y = 0; y < gridDimension; y++)
 	{
@@ -61,6 +71,8 @@ void UAStarSolver::Init(const int width, const int height, const int cellSize, c
 			grid.push_back(node);
 		}
 	}
+
+	maxGridIndex = (int)grid.size() - 1;
 
 	// init neighbors
 	for (int y = 0; y < gridDimension; y++)
@@ -87,7 +99,7 @@ bool UAStarSolver::Solve(const FVector2D bboxExtent, const int startX, const int
 	int start = startX + startY * gridDimension;
 	int goal = goalX + goalY * gridDimension;
 
-	UE_LOG(LogTemp, Error, TEXT("start: %d, goal: %d"), start, goal);
+	//UE_LOG(LogTemp, Error, TEXT("start: %d, goal: %d"), start, goal);
 
 	if (start == goal) {
 		UE_LOG(LogTemp, Error, TEXT("could not find path: START==GOAL"));
@@ -101,11 +113,12 @@ bool UAStarSolver::Solve(const FVector2D bboxExtent, const int startX, const int
 		UE_LOG(LogTemp, Error, TEXT("could not find path: INVALID GOAL POSITION"));
 		return false;
 	}
-	if (grid[start]->clearance * cellSize < bboxExtent.Size())
-	{
-		UE_LOG(LogTemp, Error, TEXT("not enough clearance for formation (%f needed, %f at start location)!"), bboxExtent.Size(), grid[start]->clearance);
-		return false;
-	}
+	//if (grid[start]->clearance * cellSize < bboxExtent.Size())
+	//if (TestClearance(bboxExtent.Size(), grid[start]->clearance, bboxExtent, FVector2D(grid[start]->x, grid[start]->y), FVector2D::ZeroVector))
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("not enough clearance for formation (%f needed, %f at start location)!"), bboxExtent.Size(), grid[start]->clearance);
+	//	return false;
+	//}
 
 	// reset all nodes in the grid
 	for (Node* node : grid)
@@ -117,24 +130,26 @@ bool UAStarSolver::Solve(const FVector2D bboxExtent, const int startX, const int
 	}
 
 	float formationRadius = bboxExtent.Size();
-	UE_LOG(LogTemp, Error, TEXT("BBOX WIDTH: %f, HEIGHT: %f"), bboxExtent.Y, bboxExtent.X);
-
+	//UE_LOG(LogTemp, Error, TEXT("BBOX WIDTH: %f, HEIGHT: %f"), bboxExtent.Y, bboxExtent.X);
 
 	Node* goalNode = grid[goal];
-	UE_LOG(LogTemp, Warning, TEXT("goal node pos = (%f, %f)"), goalNode->x, goalNode->y);
+	//UE_LOG(LogTemp, Warning, TEXT("goal node pos = (%f, %f)"), goalNode->x, goalNode->y);
 
-	//std::priority_queue<Node*, std::vector<Node*>, std::less<Node*>> openQueue;
 	std::list<Node*> openQueue;
 
 	Node* startNode = grid[start];
-	startNode->localGoal = 0.f;
-	startNode->globalGoal = Heuristic(startNode, goalNode);
-	openQueue.push_back(startNode);
+	Node* current = startNode;
+	current->localGoal = 0.f;
+	current->globalGoal = Heuristic(current, goalNode);
+	openQueue.push_back(current);
 
-	UE_LOG(LogTemp, Warning, TEXT("cell size is %f"), cellSize);
-	UE_LOG(LogTemp, Warning, TEXT("formation radius is %f"), formationRadius);
+	//UE_LOG(LogTemp, Warning, TEXT("cell size is %f"), cellSize);
+	//UE_LOG(LogTemp, Warning, TEXT("formation radius is %f"), formationRadius);
 
-	while (!openQueue.empty())
+	int nodeCounter = 0;
+
+	while (!openQueue.empty() && current != goalNode)
+	//while (!openQueue.empty())
 	{
 		// Sort Untested nodes by global goal, so lowest is first
 		openQueue.sort([](const Node* lhs, const Node* rhs) { return lhs->globalGoal < rhs->globalGoal; });
@@ -147,19 +162,24 @@ bool UAStarSolver::Solve(const FVector2D bboxExtent, const int startX, const int
 
 		if (openQueue.empty()) break;
 
-		Node* current = openQueue.front();
+		current = openQueue.front();
 		current->processed = true;
-		Direction currentDirection = current->parent != nullptr ? GetCurrentDirection(current->parent->x, current->x, current->parent->y, current->y) : Direction::C;
+		FVector2D currentDirection = FVector2D(0, 0);
+		if (current->parent != nullptr)
+		{
+			currentDirection = FVector2D(current->parent->x - current->x, current->parent->y - current->y);
+			currentDirection.Normalize();
+		}
 		
 		// process neighbors
 		for (Node* neighbor : current->neighbors)
 		{
-			if (!neighbor->processed && neighbor->clearance * cellSize > formationRadius)
+			if (!neighbor->processed && TestClearance(formationRadius, neighbor->clearance, bboxExtent, FVector2D(neighbor->x, neighbor->y), currentDirection))
 				openQueue.push_back(neighbor);
 
 			float potentialNewLocal = (current->localGoal + distance(current, neighbor));
 			
-			Direction newDirection = GetCurrentDirection(current->x, neighbor->x, current->y, neighbor->y);
+			FVector2D newDirection = FVector2D(current->x - neighbor->x, current->y - neighbor->y);
 			if (newDirection != currentDirection)
 			{
 				potentialNewLocal += 250.f; // add penalty if agent needs to change direction (prevent zigzagging)
@@ -172,8 +192,12 @@ bool UAStarSolver::Solve(const FVector2D bboxExtent, const int startX, const int
 				neighbor->globalGoal = neighbor->localGoal + Heuristic(neighbor, goalNode);
 			}
 
+			nodeCounter++;
 		}
 	}
+
+	UE_LOG(LogTemp, Error, TEXT("NODES CONSIDERED: %d"), nodeCounter);
+
 	outPath = CreatePath(startNode, goalNode);
 	if (outPath.empty())
 	{
@@ -183,6 +207,96 @@ bool UAStarSolver::Solve(const FVector2D bboxExtent, const int startX, const int
 
 	return true;
 }
+
+void UAStarSolver::DrawDivisions(const UWorld* world, const FVector2D bboxExtent, const FVector2D dir, const int startX, const int startY) const
+{
+	// DEBUG
+
+	int start = startX + startY * gridDimension;
+
+	TestClearance(bboxExtent.Size(), grid[start]->clearance, bboxExtent, FVector2D(grid[start]->x, grid[start]->y), dir, 0, world);
+}
+
+
+bool UAStarSolver::TestClearance(const float formRadius, const float clearance, const FVector2D& extent, const FVector2D position, const FVector2D& dir, int depth, const UWorld* world) const
+{
+	// TODO: implement divide and conquer algorithm
+	
+	if (clearance * cellSize > formRadius && !world)
+	{
+		return true;
+	}
+
+	if (depth == maxDepth) return false;
+
+	//UE_LOG(LogTemp, Error, TEXT("Going into recursion with depth %f"), (float)depth);
+
+	// ----- DEBUG -----
+	if (world)
+	{
+		float colScal = (float)depth / 2.f;
+		FColor col = FColor::MakeRedToGreenColorFromScalar(colScal);
+
+		DrawDebugSphere(world, FVector(position.X, position.Y, 60.f), formRadius, 20, col, true, 20);
+	}
+	// --------------
+
+	int outIndexL, outIndexR;
+	float outClearanceL, outClearanceR;
+	FVector2D outExtent, outPosL, outPosR;
+	
+	if (!DivideFormation(extent, position, dir, outExtent, outPosL, outPosR, outIndexL, outIndexR, outClearanceL, outClearanceR))
+	{
+		return false;
+	}
+	float newFormClearance = outExtent.Size();
+
+	UE_LOG(LogTemp, Error, TEXT("Going into left recursion with depth %d"), depth);
+	bool leftIsClear = TestClearance(newFormClearance, outClearanceL, outExtent, outPosL, dir, depth + 1, world);
+	UE_LOG(LogTemp, Error, TEXT("Going into right recursion with depth %d"), depth);
+	bool rightIsClear = TestClearance(newFormClearance, outClearanceR, outExtent, outPosR, dir, depth + 1, world);
+
+	return leftIsClear && rightIsClear;
+}
+
+// assume that direction is normalized!
+bool UAStarSolver::DivideFormation(const FVector2D& extent, const FVector2D position, const FVector2D& dir, FVector2D& outExtent, FVector2D& outPosLeft, FVector2D& outPosRight, int& outIndexLeft, int& outIndexRight, float& outClearanceLeft, float& outClearanceRight) const
+{
+	int longestAxis;
+	FVector2D offsetDir;
+
+	if (extent.X > extent.Y)
+	{
+		longestAxis = 0;
+		offsetDir = FVector2D(dir.Y, -dir.X);
+	}
+	else
+	{
+		longestAxis = 1;
+		offsetDir = dir;
+	}
+
+	float offset = extent[longestAxis] * 0.5f;
+
+	outExtent = extent;
+	outExtent[longestAxis] *= 0.5f;
+
+	// get the mid points of the 2 split-up bboxes in world space
+	outPosRight = position + offsetDir * offset;
+	outPosLeft = position - offsetDir * offset;
+
+	outIndexRight = GetIndex(outPosRight);
+	outIndexLeft = GetIndex(outPosLeft);
+
+	if (outIndexLeft < 0 || outIndexRight < 0 || outIndexLeft > maxGridIndex || outIndexRight > maxGridIndex) return false;
+
+	// TODO: adjust clearance size to incorporate discretization error of grid cell
+	outClearanceRight = grid[outIndexRight]->clearance + SQRT_TWO;
+	outClearanceLeft = grid[outIndexLeft]->clearance + SQRT_TWO;
+
+	return true;
+}
+
 
 std::vector<NodePosition> UAStarSolver::CreatePath(Node* start, Node* goal)
 {
@@ -198,7 +312,6 @@ std::vector<NodePosition> UAStarSolver::CreatePath(Node* start, Node* goal)
 	
 	prevPos = pos;
 	Node* p = goal->parent;
-	Direction currentDir = Direction::C;
 	NodePosition newPos;
 
 	while (p != nullptr)
@@ -244,29 +357,4 @@ int UAStarSolver::distance(const Node* from, const Node* to) const
 int UAStarSolver::Heuristic(const Node* from, const Node* to) const
 {
 	return distance(from, to);
-}
-
-Direction UAStarSolver::GetCurrentDirection(float fromX, float toX, float fromY, float toY) const
-{
-
-	if (fromX == toX)
-	{
-		if (fromY == toY) { return Direction::C; }
-		else if (toY > fromY) { return Direction::N; }
-		else { return Direction::S; }
-	}
-
-	else if (toX > fromX)
-	{
-		if (toY == fromY) { return Direction::E; }
-		else if (toY > fromY) { return Direction::NE; }
-		else { return Direction::SE; }
-	}
-
-	else
-	{
-		if (toY == fromY) { return Direction::W; }
-		else if (toY > fromY) { return Direction::NW; }
-		else { return Direction::SW; }
-	}
 }

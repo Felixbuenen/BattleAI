@@ -44,6 +44,9 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void HandleRightMouseDown();
 
+	UFUNCTION(BlueprintCallable)
+	bool ValidFormationPosition() const;
+
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void HandleRightMouseUp();
 

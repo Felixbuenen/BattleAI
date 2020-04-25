@@ -135,6 +135,11 @@ void ACommandManager::HandleLeftMouseDown(AFormationCommander* formation)
 	}
 }
 
+bool ACommandManager::ValidFormationPosition() const
+{
+	return frame->GetPositionIsValid();
+}
+
 void ACommandManager::ToggleSelectFormation(bool selected, AFormationCommander* formation, int index)
 {
 	formation->SetSelectionDisplay(selected);

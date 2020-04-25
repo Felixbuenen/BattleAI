@@ -29,6 +29,7 @@ protected:
 	UFUNCTION()
 	void HandleWallExit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	bool positionValid;
 	const float frameHeight = 64.f;
 	const float formationPadding = 200.f;
 	FVector frameBegin;
@@ -52,6 +53,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Stop(bool cancel);
+
+	UFUNCTION(BlueprintCallable)
+	bool GetPositionIsValid() const { return positionValid; }
 
 	const TArray<TArray<FVector>>& GetTargetSoldierLocations() const { return targetSoldierLocations; }
 	const TArray<FVector>& GetCommanderTargetLocations() const { return targetLocations; }

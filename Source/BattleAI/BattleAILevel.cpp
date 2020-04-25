@@ -96,10 +96,26 @@ AGlobalPath* ABattleAILevel::FindGlobalPath(AFormationCommander* commander, FVec
 	float formWidth, formHeight;
 	commander->GetFormationSize(formWidth, formHeight);
 	FVector2D formationBboxExtent(formWidth * 0.5f, formHeight * 0.5f);
+	
+	// ---- DEBUG ---
+	const UWorld* world = GetWorld();
+	if (world)
+	{
+		FVector dir = commander->GetActorForwardVector();
+		FVector2D dir2D;
+		dir2D.X = dir.X;
+		dir2D.Y = dir.Y;
+		dir2D.Normalize();
+		pathfinder->DrawDivisions(world, formationBboxExtent, dir2D, startIndexX, startIndexY);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Could not find world!"));
+	}
+	// -------------
+	
 	std::vector<NodePosition> path;
 	bool foundPath = pathfinder->Solve(formationBboxExtent, startIndexX, startIndexY, goalIndexX, goalIndexY, path);
-	
-	UWorld* world = GetWorld();
 	if (!foundPath)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Could not find path!"));
