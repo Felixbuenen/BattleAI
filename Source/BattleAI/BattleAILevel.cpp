@@ -28,7 +28,7 @@ void ABattleAILevel::InitPathfindingInfo()
 
 	CellExtent = levelBoundX / (float)gridDimension;
 
-	pathfinder->Init(gridDimension, gridDimension, CellExtent * 2, floor);
+	pathfinder->Init(gridDimension, gridDimension, CellExtent * 2, floor, DivideAndConquerPathfinding);
 	AGlobalPath::SetCellSize(CellExtent * 2);
 	
 	// calculate clearance

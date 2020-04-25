@@ -51,10 +51,11 @@ int UAStarSolver::GetClearance(int index) const
 	return grid[index]->clearance;
 }
 
-void UAStarSolver::Init(const int width, const int height, const int cellSize, const AActor* gridObject)
+void UAStarSolver::Init(const int width, const int height, const int cellSize, const AActor* gridObject, bool divAndConq)
 {
 	this->cellSize = cellSize;
 	this->gridDimension = width; // TODO: change width / height to dimension
+	this->divAndConq = divAndConq;
 
 	FVector origin = gridObject->GetActorLocation();
 	leftEdge = origin.X - (gridDimension * cellSize / 2);
@@ -148,8 +149,8 @@ bool UAStarSolver::Solve(const FVector2D bboxExtent, const int startX, const int
 
 	int nodeCounter = 0;
 
-	while (!openQueue.empty() && current != goalNode)
-	//while (!openQueue.empty())
+	//while (!openQueue.empty() && current != goalNode)
+	while (!openQueue.empty())
 	{
 		// Sort Untested nodes by global goal, so lowest is first
 		openQueue.sort([](const Node* lhs, const Node* rhs) { return lhs->globalGoal < rhs->globalGoal; });
@@ -221,6 +222,8 @@ void UAStarSolver::DrawDivisions(const UWorld* world, const FVector2D bboxExtent
 bool UAStarSolver::TestClearance(const float formRadius, const float clearance, const FVector2D& extent, const FVector2D position, const FVector2D& dir, int depth, const UWorld* world) const
 {
 	// TODO: implement divide and conquer algorithm
+
+	if (!divAndConq) return clearance * cellSize > formRadius;
 	
 	if (clearance * cellSize > formRadius && !world)
 	{

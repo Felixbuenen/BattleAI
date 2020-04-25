@@ -45,7 +45,7 @@ public:
 	UAStarSolver();
 	~UAStarSolver();
 	
-	void Init(const int width, const int height, const int cellSize, const AActor* gridObject);
+	void Init(const int width, const int height, const int cellSize, const AActor* gridObject, bool divAndConq);
 	bool Solve(const FVector2D bboxExtent, const int startX, const int startY, const int goalX, const int goalY, std::vector<NodePosition>& outPath);
 	void SetClearance(int clearance, int index);
 
@@ -65,6 +65,8 @@ private:
 	bool DivideFormation(const FVector2D& extent, const FVector2D position, const FVector2D& dir, FVector2D& outExtent, FVector2D& outPosLeft, FVector2D& outPosRight, int& outIndexLeft, int& outIndexRight, float& outClearanceLeft, float& outClearanceRight) const;
 	std::vector<NodePosition> CreatePath(Node* start, Node* goal);
 	std::vector<Node*> grid;
+
+	bool divAndConq;
 
 	int gridDimension;
 	float cellSize;

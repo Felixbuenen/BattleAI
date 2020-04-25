@@ -24,6 +24,9 @@ protected:
 	UPROPERTY()
 	class UAStarSolver* pathfinder;
 
+	UPROPERTY(EditAnywhere)
+	bool DivideAndConquerPathfinding;
+
 	UFUNCTION(BlueprintCallable, Category = LevelBlueprint)
 	void InitPathfindingInfo();
 
