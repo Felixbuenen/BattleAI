@@ -20,7 +20,7 @@ AFormationFrame::AFormationFrame()
 	FramePivot = CreateDefaultSubobject<USceneComponent>(TEXT("Frame Pivot"));
 	FrameCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Frame Collider"));
 	
-	FrameCollider->SetHiddenInGame(false); // for now, make it visible
+	FrameCollider->SetHiddenInGame(true); 
 	FrameCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	FrameCollider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	FrameCollider->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
@@ -54,13 +54,13 @@ void AFormationFrame::Tick(float DeltaTime)
 void AFormationFrame::HandleWallOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Enter wall"));
-	positionValid = false;
+	validLocation = false;
 }
 
 void AFormationFrame::HandleWallExit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Exit wall"));
-	positionValid = true;
+	validLocation = true;
 }
 
 void AFormationFrame::Init(const FVector& begin, const FVector& end, const TArray<AFormationCommander*> forms)

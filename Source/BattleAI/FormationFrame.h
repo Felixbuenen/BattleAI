@@ -29,7 +29,6 @@ protected:
 	UFUNCTION()
 	void HandleWallExit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	bool positionValid;
 	const float frameHeight = 64.f;
 	const float formationPadding = 200.f;
 	FVector frameBegin;
@@ -40,6 +39,7 @@ protected:
 	TArray<TArray<FVector>> targetSoldierLocations;
 	TArray<FVector2D> formBboxes;
 	FRotator targetRotation;
+	bool validLocation;
 
 public:	
 	// Called every frame
@@ -55,9 +55,10 @@ public:
 	void Stop(bool cancel);
 
 	UFUNCTION(BlueprintCallable)
-	bool GetPositionIsValid() const { return positionValid; }
+	bool GetPositionIsValid() const { return validLocation; }
 
-	const TArray<TArray<FVector>>& GetTargetSoldierLocations() const { return targetSoldierLocations; }
-	const TArray<FVector>& GetCommanderTargetLocations() const { return targetLocations; }
-	const FRotator& GetTargetRotation() const { return targetRotation; }
+	FORCEINLINE const TArray<TArray<FVector>>& GetTargetSoldierLocations() const { return targetSoldierLocations; }
+	FORCEINLINE const TArray<FVector>& GetCommanderTargetLocations() const { return targetLocations; }
+	FORCEINLINE const FRotator& GetTargetRotation() const { return targetRotation; }
+	FORCEINLINE const bool GetValidPosition() const { return validLocation; }
 };

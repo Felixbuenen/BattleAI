@@ -11,7 +11,9 @@
 #include "Kismet/KismetSystemLibrary.h" 
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
-
+#include "Materials/MaterialInterface.h"
+#include "Materials/Material.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 // Sets default values
 ACommandManager::ACommandManager()
@@ -50,6 +52,7 @@ void ACommandManager::InitTargetLocationDisplay()
 			UDecalComponent* decal = UGameplayStatics::SpawnDecalAttached(targetLocDecalRef, FVector(50.f, 50.f, 50.f), RootComponent);
 			decal->DecalSize = FVector(50.f, 50.f, 200.f);
 			decal->SetVisibility(true);
+			decal->CreateDynamicMaterialInstance();
 
 			targetLocDecals.Emplace(decal);
 		}
@@ -74,6 +77,9 @@ void ACommandManager::UpdateTargetLocationDisplay()
 	const TArray<TArray<FVector>>& targetSoldierLocations = frame->GetTargetSoldierLocations();
 	const TArray<FVector>& commLocation = frame->GetCommanderTargetLocations();
 	const FRotator& targetRot = frame->GetTargetRotation();
+	const bool validPosition = frame->GetValidPosition();
+	
+	float hue = validPosition ? 0.f : 0.33333f; // 0.33333f changes the color to red
 	
 	int counter = 0;
 	int numCommanders = targetSoldierLocations.Num();
@@ -89,6 +95,11 @@ void ACommandManager::UpdateTargetLocationDisplay()
 			targetLocDecals[offset + s]->SetWorldRotation(targetRot);
 			targetLocDecals[offset + s]->SetWorldLocation(targetLoc);
 
+			UMaterialInstanceDynamic* matRef = (UMaterialInstanceDynamic*)targetLocDecals[offset + s]->GetMaterial(0);
+			if (matRef != nullptr)
+			{
+				matRef->SetScalarParameterValue("Hue", hue);
+			}
 		}
 	}
 }
@@ -146,12 +157,10 @@ void ACommandManager::ToggleSelectFormation(bool selected, AFormationCommander* 
 	if (selected)
 	{
 		activeFormations.Emplace(formation);
-		//frame->UpdateActiveFormations(activeFormations);
 	}
 	else
 	{
 		activeFormations.Remove(formation);
-		//frame->UpdateActiveFormations(activeFormations);
 	}
 }
 
@@ -163,5 +172,4 @@ void ACommandManager::DeselectAllFormations()
 	}
 
 	activeFormations.Empty();
-	//frame->UpdateActiveFormations(activeFormations);
 }
