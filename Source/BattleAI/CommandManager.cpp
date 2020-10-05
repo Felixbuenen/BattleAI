@@ -34,11 +34,27 @@ void ACommandManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	APlayerController* PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+	if (!activeFormationFrame) return;
+	if (formationFrameDragging)
+	{
+		frame->Update(GetWorldCursorLocation());
+		UpdateTargetLocationDisplay();
+		return;
+	}
 
-	float xPos, yPos;
-	PlayerController->GetMousePosition(xPos, yPos);
+	// get mouse screen position
+	APlayerController* plController = GetWorld()->GetFirstPlayerController();
+	FVector2D currentScreenPos;
+	plController->GetMousePosition(currentScreenPos.X, currentScreenPos.Y);
 
+	// check if mouse was click-dragged far enough (if so, trigger the formation frame)
+	float screenDist = (frameStartDragScreenPosition - currentScreenPos).Size();
+	if (screenDist >= screenDragFrameTriggerTreshold)
+	{
+		formationFrameDragging = true;
+		frame->Update(GetWorldCursorLocation());
+		UpdateTargetLocationDisplay();
+	}
 }
 
 void ACommandManager::InitTargetLocationDisplay()
@@ -104,7 +120,7 @@ void ACommandManager::UpdateTargetLocationDisplay()
 	}
 }
 
-void ACommandManager::HandleLeftMouseDown(AFormationCommander* formation)
+void ACommandManager::ToggleSelectFormation(AFormationCommander* formation)
 {
 	// valid formation selected
 	if (formation)
@@ -164,6 +180,29 @@ void ACommandManager::ToggleSelectFormation(bool selected, AFormationCommander* 
 	}
 }
 
+void ACommandManager::StartDragFormationGoal()
+{
+	activeFormationFrame = true;
+
+	// get mouse screen position
+	APlayerController* plController = GetWorld()->GetFirstPlayerController();
+	plController->GetMousePosition(frameStartDragScreenPosition.X, frameStartDragScreenPosition.Y);
+
+	// get formation click location
+	FVector hitWorldLocation = GetWorldCursorLocation();
+
+	frame->Init(hitWorldLocation, hitWorldLocation, activeFormations);
+	InitTargetLocationDisplay();
+}
+
+void ACommandManager::StopDragFormationGoal()
+{
+	activeFormationFrame = false;
+	formationFrameDragging = false;
+	frame->Stop(false);
+	StopTargetLocationDisplay();
+}
+
 void ACommandManager::DeselectAllFormations()
 {
 	for (auto f : activeFormations)
@@ -172,4 +211,13 @@ void ACommandManager::DeselectAllFormations()
 	}
 
 	activeFormations.Empty();
+}
+
+const FVector ACommandManager::GetWorldCursorLocation() const
+{
+	APlayerController* plController = GetWorld()->GetFirstPlayerController();
+
+	FHitResult outHit;
+	plController->GetHitResultUnderCursorByChannel(ETraceTypeQuery(ECollisionChannel::ECC_EngineTraceChannel3), true, outHit);
+	return outHit.Location;
 }

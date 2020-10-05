@@ -21,14 +21,24 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class UMaterial* targetLocDecalRef;
 
-	UFUNCTION(BlueprintCallable)
+	//UFUNCTION(BlueprintCallable)
 	void InitTargetLocationDisplay();
 
-	UFUNCTION(BlueprintCallable)
+	//UFUNCTION(BlueprintCallable)
 	void StopTargetLocationDisplay();
 
-	UFUNCTION(BlueprintCallable)
+	//UFUNCTION(BlueprintCallable)
 	void UpdateTargetLocationDisplay();
+
+	UPROPERTY(EditAnywhere)
+	bool activeFormationFrame;
+	
+	UPROPERTY(EditAnywhere)
+	bool formationFrameDragging;
+
+	UPROPERTY(EditAnywhere)
+	float screenDragFrameTriggerTreshold = 20.0f;
+	FVector2D frameStartDragScreenPosition;
 
 protected:
 
@@ -39,16 +49,16 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	void HandleLeftMouseDown(class AFormationCommander* formation);
+	void ToggleSelectFormation(class AFormationCommander* formation);
 
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-	void HandleRightMouseDown();
+	UFUNCTION(BlueprintCallable)
+	void StartDragFormationGoal();
 
 	UFUNCTION(BlueprintCallable)
 	bool ValidFormationPosition() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-	void HandleRightMouseUp();
+	UFUNCTION(BlueprintCallable)
+	void StopDragFormationGoal();
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<class AFormationCommander*> activeFormations;
@@ -59,6 +69,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class AFormationFrame* frame;
 
+	const FVector GetWorldCursorLocation() const;
 
 public:	
 	// Called every frame

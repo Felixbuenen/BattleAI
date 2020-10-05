@@ -61,4 +61,5 @@ public:
 	FORCEINLINE const TArray<FVector>& GetCommanderTargetLocations() const { return targetLocations; }
 	FORCEINLINE const FRotator& GetTargetRotation() const { return targetRotation; }
 	FORCEINLINE const bool GetValidPosition() const { return validLocation; }
+	FORCEINLINE const FVector& GetStartLocation() const { return frameBegin; }
 };

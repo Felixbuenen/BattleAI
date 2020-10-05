@@ -148,6 +148,8 @@ void AFormationFrame::Update(const FVector& pos)
 
 	// update ouptut rotation
 	targetRotation = rot;
+
+	
 }
 
 void AFormationFrame::Stop(bool cancel)
