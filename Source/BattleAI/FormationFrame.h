@@ -41,6 +41,8 @@ protected:
 	FRotator targetRotation;
 	bool validLocation;
 
+	class UFormationFrameDrawer* drawer;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

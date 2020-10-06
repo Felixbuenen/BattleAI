@@ -42,7 +42,6 @@ TArray<FVector> UFormationDescription::GetFormationFromWidth(float width, int nu
 
 	// fill the last (incomplete) row
 	// calculate left most agent y-position of the agents in the back row and add to formation
-	//startY = 0.5f * (numPerRow - remaining) * agentClearance - halfWidth;
 	startY = startY + (numPerRow - remaining) * 0.5f * agentClearance;
 	for (int r = 0; r < remaining; r++)
 	{
@@ -50,8 +49,7 @@ TArray<FVector> UFormationDescription::GetFormationFromWidth(float width, int nu
 		counter++;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Num soldiers: %d, number of positions: %d. rows: %d, cols: %d, remain: %d"), numSoldiers, counter, numPerRow, numPerCol, remaining);
-
+	//UE_LOG(LogTemp, Warning, TEXT("Num soldiers: %d, number of positions: %d. rows: %d, cols: %d, remain: %d"), numSoldiers, counter, numPerRow, numPerCol, remaining);
 
 	return formation;
 }

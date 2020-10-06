@@ -3,8 +3,9 @@
 
 #include "CommandManager.h"
 #include "FormationFrame.h"
-
+#include "FormationFrameDrawer.h"
 #include "FormationCommander.h"
+
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
 #include "Components/DecalComponent.h"
@@ -20,13 +21,14 @@ ACommandManager::ACommandManager()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
 }
 
 // Called when the game starts or when spawned
 void ACommandManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
@@ -38,7 +40,6 @@ void ACommandManager::Tick(float DeltaTime)
 	if (formationFrameDragging)
 	{
 		frame->Update(GetWorldCursorLocation());
-		UpdateTargetLocationDisplay();
 		return;
 	}
 
@@ -53,70 +54,6 @@ void ACommandManager::Tick(float DeltaTime)
 	{
 		formationFrameDragging = true;
 		frame->Update(GetWorldCursorLocation());
-		UpdateTargetLocationDisplay();
-	}
-}
-
-void ACommandManager::InitTargetLocationDisplay()
-{
-	const TArray<TArray<FVector>>& targetSoldierLocations = frame->GetTargetSoldierLocations();
-	for (const auto& comm : targetSoldierLocations)
-	{
-		for (const auto& sold : comm)
-		{
-			//UDecalComponent* decal = NewObject<UDecalComponent>(this, FName("decal"));
-			UDecalComponent* decal = UGameplayStatics::SpawnDecalAttached(targetLocDecalRef, FVector(50.f, 50.f, 50.f), RootComponent);
-			decal->DecalSize = FVector(50.f, 50.f, 200.f);
-			decal->SetVisibility(true);
-			decal->CreateDynamicMaterialInstance();
-
-			targetLocDecals.Emplace(decal);
-		}
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Num decals: %d"), targetLocDecals.Num());
-}
-
-void ACommandManager::StopTargetLocationDisplay()
-{
-	for (auto decal : targetLocDecals)
-	{
-		decal->DestroyComponent();
-	}
-	targetLocDecals.Empty();
-}
-
-void ACommandManager::UpdateTargetLocationDisplay()
-{
-	if (targetLocDecals.Num() == 0) return;
-
-	const TArray<TArray<FVector>>& targetSoldierLocations = frame->GetTargetSoldierLocations();
-	const TArray<FVector>& commLocation = frame->GetCommanderTargetLocations();
-	const FRotator& targetRot = frame->GetTargetRotation();
-	const bool validPosition = frame->GetValidPosition();
-	
-	float hue = validPosition ? 0.f : 0.33333f; // 0.33333f changes the color to red
-	
-	int counter = 0;
-	int numCommanders = targetSoldierLocations.Num();
-	for (int i = 0; i < numCommanders; i++)
-	{
-		int numSoldiers = targetSoldierLocations[i].Num();
-		for(int s = 0; s < numSoldiers; s++)
-		{
-			int offset = numSoldiers * i;
-			FVector targetLoc = targetRot.RotateVector(targetSoldierLocations[i][s]);
-			targetLoc += commLocation[i];
-			targetLoc.Z = 0.f;
-			targetLocDecals[offset + s]->SetWorldRotation(targetRot);
-			targetLocDecals[offset + s]->SetWorldLocation(targetLoc);
-
-			UMaterialInstanceDynamic* matRef = (UMaterialInstanceDynamic*)targetLocDecals[offset + s]->GetMaterial(0);
-			if (matRef != nullptr)
-			{
-				matRef->SetScalarParameterValue("Hue", hue);
-			}
-		}
 	}
 }
 
@@ -192,7 +129,6 @@ void ACommandManager::StartDragFormationGoal()
 	FVector hitWorldLocation = GetWorldCursorLocation();
 
 	frame->Init(hitWorldLocation, hitWorldLocation, activeFormations);
-	InitTargetLocationDisplay();
 }
 
 void ACommandManager::StopDragFormationGoal()
@@ -200,7 +136,6 @@ void ACommandManager::StopDragFormationGoal()
 	activeFormationFrame = false;
 	formationFrameDragging = false;
 	frame->Stop(false);
-	StopTargetLocationDisplay();
 }
 
 void ACommandManager::DeselectAllFormations()

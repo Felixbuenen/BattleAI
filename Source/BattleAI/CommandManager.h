@@ -18,18 +18,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool multiSelect;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	class UMaterial* targetLocDecalRef;
-
-	//UFUNCTION(BlueprintCallable)
-	void InitTargetLocationDisplay();
-
-	//UFUNCTION(BlueprintCallable)
-	void StopTargetLocationDisplay();
-
-	//UFUNCTION(BlueprintCallable)
-	void UpdateTargetLocationDisplay();
-
 	UPROPERTY(EditAnywhere)
 	bool activeFormationFrame;
 	
@@ -41,9 +29,6 @@ public:
 	FVector2D frameStartDragScreenPosition;
 
 protected:
-
-	UPROPERTY()
-	TArray<UDecalComponent*> targetLocDecals;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

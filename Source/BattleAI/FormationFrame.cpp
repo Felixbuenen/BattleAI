@@ -4,11 +4,13 @@
 #include "FormationFrame.h"
 #include "FormationCommander.h"
 #include "FormationDescription.h"
+#include "FormationFrameDrawer.h"
 
 #include "Components/BoxComponent.h"
 #include "Components/SceneComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "UObject/UObjectGlobals.h"
 
 
 // Sets default values
@@ -39,6 +41,9 @@ void AFormationFrame::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	drawer = NewObject<UFormationFrameDrawer>();
+	drawer->InitDrawer(RootComponent, this);
+
 	FrameCollider->OnComponentBeginOverlap.AddDynamic(this, &AFormationFrame::HandleWallOverlap);
 	FrameCollider->OnComponentEndOverlap.AddDynamic(this, &AFormationFrame::HandleWallExit);
 	FrameCollider->Deactivate();
@@ -85,6 +90,8 @@ void AFormationFrame::Init(const FVector& begin, const FVector& end, const TArra
 	Update(end);
 
 	SetActorLocation(begin);
+
+	drawer->InitTargetLocationDisplay();
 }
 
 void AFormationFrame::Update(const FVector& pos)
@@ -149,7 +156,7 @@ void AFormationFrame::Update(const FVector& pos)
 	// update ouptut rotation
 	targetRotation = rot;
 
-	
+	drawer->UpdateTargetLocationDisplay();
 }
 
 void AFormationFrame::Stop(bool cancel)
@@ -180,4 +187,5 @@ void AFormationFrame::Stop(bool cancel)
 	}
 
 	FrameCollider->Deactivate();
+	drawer->StopTargetLocationDisplay();
 }
