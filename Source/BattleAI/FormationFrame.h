@@ -32,7 +32,7 @@ protected:
 	const float frameHeight = 64.f;
 	const float formationPadding = 200.f;
 	FVector frameBegin;
-	TArray<class AFormationCommander*> activeFormations;
+	TArray<class AFormation*> activeFormations;
 
 	// todo: make struct
 	TArray<FVector> targetLocations;
@@ -48,7 +48,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-	void Init(const FVector& begin, const FVector& end, const TArray<AFormationCommander*> forms);
+	void Init(const FVector& begin, const FVector& end, const TArray<AFormation*> forms);
 	
 	UFUNCTION(BlueprintCallable)
 	void Update(const FVector& pos);

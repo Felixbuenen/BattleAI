@@ -34,4 +34,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	class AFormationCommander* MyCommander;
+
+	UPROPERTY(BlueprintReadOnly)
+	class AFormation* MyFormation;
 };

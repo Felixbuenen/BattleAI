@@ -6,6 +6,8 @@
 #include "Engine/StaticMeshActor.h"
 #include "DrawDebugHelpers.h"
 #include "Components/SphereComponent.h"
+
+#include "Formation.h"
 #include "AStarSolver.h"
 #include "GlobalPath.h"
 #include "BattleAIGameState.h"
@@ -78,13 +80,15 @@ void ABattleAILevel::Tick(float DeltaTime)
 	}
 }
 
-AGlobalPath* ABattleAILevel::FindGlobalPath(AFormationCommander* commander, FVector destination)
+AGlobalPath* ABattleAILevel::FindGlobalPath(AFormation* formation, FVector destination)
 {
 	FVector gridCenter = floor->GetActorLocation();
 
 	float boundX = floor->GetStaticMeshComponent()->Bounds.BoxExtent.X;
 	float boundY = floor->GetStaticMeshComponent()->Bounds.BoxExtent.Y;
 	float cellSize = CellExtent * 2.f;
+
+	AFormationCommander* commander = formation->GetCommander();
 
 	FVector commanderLocation = commander->GetActorLocation();
 	int startIndexX = (int)((commanderLocation.X - gridCenter.X + boundX) / cellSize);
@@ -94,7 +98,7 @@ AGlobalPath* ABattleAILevel::FindGlobalPath(AFormationCommander* commander, FVec
 
 	// set the formation size and find a path
 	float formWidth, formHeight;
-	commander->GetFormationSize(formWidth, formHeight);
+	formation->GetFormationSize(formWidth, formHeight);
 	FVector2D formationBboxExtent(formWidth * 0.5f, formHeight * 0.5f);
 	
 	// ---- DEBUG ---

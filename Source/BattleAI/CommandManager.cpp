@@ -5,6 +5,7 @@
 #include "FormationFrame.h"
 #include "FormationFrameDrawer.h"
 #include "FormationCommander.h"
+#include "Formation.h"
 
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
@@ -57,7 +58,7 @@ void ACommandManager::Tick(float DeltaTime)
 	}
 }
 
-void ACommandManager::ToggleSelectFormation(AFormationCommander* formation)
+void ACommandManager::ToggleSelectFormation(AFormation* formation)
 {
 	// valid formation selected
 	if (formation)
@@ -104,7 +105,7 @@ bool ACommandManager::ValidFormationPosition() const
 	return frame->GetPositionIsValid();
 }
 
-void ACommandManager::ToggleSelectFormation(bool selected, AFormationCommander* formation, int index)
+void ACommandManager::ToggleSelectFormation(bool selected, AFormation* formation, int index)
 {
 	formation->SetSelectionDisplay(selected);
 	if (selected)

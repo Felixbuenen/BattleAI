@@ -34,7 +34,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	void ToggleSelectFormation(class AFormationCommander* formation);
+	void ToggleSelectFormation(class AFormation* formation);
 
 	UFUNCTION(BlueprintCallable)
 	void StartDragFormationGoal();
@@ -46,9 +46,9 @@ protected:
 	void StopDragFormationGoal();
 
 	UPROPERTY(BlueprintReadOnly)
-	TArray<class AFormationCommander*> activeFormations;
+	TArray<class AFormation*> activeFormations;
 	
-	void ToggleSelectFormation(bool selected, AFormationCommander* formation, int index = -1);
+	void ToggleSelectFormation(bool selected, class AFormation* formation, int index = -1);
 	void DeselectAllFormations();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

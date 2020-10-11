@@ -5,6 +5,7 @@
 #include "FormationCommander.h"
 #include "FormationDescription.h"
 #include "FormationFrameDrawer.h"
+#include "Formation.h"
 
 #include "Components/BoxComponent.h"
 #include "Components/SceneComponent.h"
@@ -68,7 +69,7 @@ void AFormationFrame::HandleWallExit(UPrimitiveComponent* OverlappedComp, AActor
 	validLocation = true;
 }
 
-void AFormationFrame::Init(const FVector& begin, const FVector& end, const TArray<AFormationCommander*> forms)
+void AFormationFrame::Init(const FVector& begin, const FVector& end, const TArray<AFormation*> forms)
 {
 	FrameCollider->Activate();
 
@@ -110,12 +111,12 @@ void AFormationFrame::Update(const FVector& pos)
 
 	for(int i = 0; i < numForms; i++)
 	{
-		AFormationCommander* comm = activeFormations[i];
-		UFormationDescription* descr = comm->GetFormationDescription();
+		AFormation* form = activeFormations[i];
+		UFormationDescription* descr = form->GetFormationDescription();
 
 		//float availableSpace = spaceLeft / (numForms - i);
 		
-		targetSoldierLocations[i] = descr->GetFormationFromWidth(spacePerFormation, comm->GetNumSoldiers(), formBboxes[i]);
+		targetSoldierLocations[i] = descr->GetFormationFromWidth(spacePerFormation, form->GetNumSoldiers(), formBboxes[i]);
 
 		// update bounding box properties
 		//spaceLeft -= formBboxes[i].Y;
@@ -178,9 +179,9 @@ void AFormationFrame::Stop(bool cancel)
 		int numFormations = activeFormations.Num();
 		for (int i = 0; i < numFormations; i++)
 		{
-			activeFormations[i]->SetTargetLocation(targetLocations[i]);
+			activeFormations[i]->GetCommander()->SetTargetLocation(targetLocations[i]);
+			activeFormations[i]->GetCommander()->SetTargetRotation(targetRotation);
 			activeFormations[i]->SetFormationPositions(targetSoldierLocations[i]);
-			activeFormations[i]->SetTargetRotation(targetRotation);
 			activeFormations[i]->SetFormationBoundingBox(formBboxes[i]);
 			//UE_LOG(LogTemp, Warning, TEXT("[%d] target location: x: %f, y: %f"), i, targetLocations[i].X, targetLocations[i].Y);
 		}

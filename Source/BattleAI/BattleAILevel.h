@@ -31,7 +31,7 @@ protected:
 	void InitPathfindingInfo();
 
 	UFUNCTION(BlueprintCallable, Category = LevelBlueprint)
-	class AGlobalPath* FindGlobalPath(class AFormationCommander* commander, FVector destination);
+	class AGlobalPath* FindGlobalPath(class AFormation* commander, FVector destination);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = LevelBlueprint)
 	int CalculateClearance(FVector position, FVector extent);

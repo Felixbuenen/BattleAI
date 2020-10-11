@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include <vector>
 #include "AStarSolver.h"
 
 #include "CoreMinimal.h"
