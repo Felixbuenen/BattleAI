@@ -15,7 +15,9 @@ class BATTLEAI_API UPathPlanner : public UObject
 	GENERATED_BODY()
 	
 public:
-
-	virtual void Initialize(class AActor* terrain);
+	UFUNCTION(BlueprintCallable)
+	virtual void Initialize(class AActor* terrain, const TSubclassOf<AActor>& obstacle);
+	
+	UFUNCTION(BlueprintCallable)
 	virtual class AGlobalPath* FindPath(const class AFormation* formation, const FVector& goal) const;
 };

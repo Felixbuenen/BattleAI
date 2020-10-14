@@ -18,18 +18,19 @@ public:
 	UPathPlanner_AStarGrid();
 
 	UPROPERTY()
-	float cellSize;
+	float cellSize = 100.0f; // TODO: this should be visible on level blueprint
 
 	UPROPERTY()
 	bool DivideAndConquerPathfinding;
 
 public:
 
-	virtual void Initialize(class AActor* terrain) override;
+	virtual void Initialize(class AActor* terrain, const TSubclassOf<AActor>& obstacle) override;
 	virtual class AGlobalPath* FindPath(const class AFormation* formation, const FVector& goal) const override;
 
-	UFUNCTION(BlueprintImplementableEvent)
-	int CalculateClearance(FVector position, FVector extent);
+private:
+	void CreateClearanceGrid(int width, int height, const TSubclassOf<AActor>& obstacle);
+	int CalculateClearance(FVector position, FVector extent, const TSubclassOf<AActor>& obstacle);
 
 private:
 	UPROPERTY()

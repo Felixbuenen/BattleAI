@@ -6,7 +6,7 @@
 #include "GlobalPath.h"
 #include "Formation.h"
 
-void UPathPlanner::Initialize(class AActor* terrain)
+void UPathPlanner::Initialize(class AActor* terrain, const TSubclassOf<AActor>& obstacle)
 {
 	
 }

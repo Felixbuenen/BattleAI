@@ -25,7 +25,10 @@ protected:
 	UPROPERTY(EditAnywhere)
 	class AStaticMeshActor* floor;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> obstacle;
+
+	UPROPERTY(EditAnywhere)
 	class UPathPlanner* pathfinder;
 
 	UPROPERTY(EditAnywhere)

@@ -150,8 +150,7 @@ bool UAStarSolver::Solve(const FVector2D bboxExtent, const int startX, const int
 	
 	int nodeCounter = 0;
 	
-	//while (!openQueue.empty() && current != goalNode)
-	while (!openQueue.empty())
+	while (!openQueue.empty() && current != goalNode)
 	{
 		// Sort Untested nodes by global goal, so lowest is first
 		openQueue.sort([](const Node* lhs, const Node* rhs) { return lhs->globalGoal < rhs->globalGoal; });
@@ -179,7 +178,7 @@ bool UAStarSolver::Solve(const FVector2D bboxExtent, const int startX, const int
 			if (!neighbor->processed && TestClearance(formationRadius, neighbor->clearance, bboxExtent, FVector2D(neighbor->x, neighbor->y), currentDirection))
 				openQueue.push_back(neighbor);
 	
-			float potentialNewLocal = (current->localGoal + distance(current, neighbor));
+			float potentialNewLocal = (current->localGoal + distance(current, goalNode));
 			
 			FVector2D newDirection = FVector2D(current->x - neighbor->x, current->y - neighbor->y);
 			if (newDirection != currentDirection)
@@ -349,8 +348,8 @@ std::vector<NodePosition> UAStarSolver::CreatePath(Node* start, Node* goal)
 
 int UAStarSolver::distance(const Node* from, const Node* to) const
 {
-	float xDiff = abs(to->x - from->x);
-	float yDiff = abs(to->y - from->y);
+	float xDiff = to->x - from->x;
+	float yDiff = to->y - from->y;
 	float length2 = xDiff * xDiff + yDiff * yDiff;
 
 	return (int)(sqrt(length2));

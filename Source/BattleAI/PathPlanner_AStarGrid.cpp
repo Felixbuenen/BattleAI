@@ -4,6 +4,8 @@
 #include "PathPlanner_AStarGrid.h"
 
 #include "Engine/World.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "DrawDebugHelpers.h"
 
 #include "AStarSolver.h"
 #include "Formation.h"
@@ -18,7 +20,7 @@ UPathPlanner_AStarGrid::UPathPlanner_AStarGrid()
 	// create solver, init solver
 }
 
-void UPathPlanner_AStarGrid::Initialize(AActor* terrain)
+void UPathPlanner_AStarGrid::Initialize(class AActor* terrain, const TSubclassOf<AActor>& obstacle)
 {
 	FVector origin, bbox;
 	terrain->GetActorBounds(true, origin, bbox);
@@ -28,18 +30,9 @@ void UPathPlanner_AStarGrid::Initialize(AActor* terrain)
 	int width = (bbox.X * 2.0f) / cellSize;
 	int height = (bbox.Y * 2.0f) / cellSize;
 	
+	solver = NewObject<UAStarSolver>();
 	solver->Init(width, height, cellSize, origin, DivideAndConquerPathfinding);
-	
-	// calculate clearance
-	const UWorld* world = GetWorld();
-	for (int x = 0; x < width; x++)
-	{
-		for (int y = 0; y < height; y++)
-		{
-			int clearance = CalculateClearance(solver->GetPosition(x + y * width), FVector(cellSize*0.5f));
-			solver->SetClearance(clearance, x + y * width);
-		}
-	}
+	CreateClearanceGrid(width, height, obstacle);
 	
 	terrainBbox = bbox;
 	terrainCenter = origin;
@@ -65,7 +58,7 @@ AGlobalPath* UPathPlanner_AStarGrid::FindPath(const AFormation* formation, const
 	FVector2D formationBboxExtent(formWidth * 0.5f, formHeight * 0.5f);
 	
 	std::vector<NodePosition> outPathPoints;
-	bool foundPath = solver->Solve(formationBboxExtent, start.X, start.Y, goal.X, goal.Y, outPathPoints);
+	bool foundPath = solver->Solve(formationBboxExtent, startIndexX, startIndexY, goalIndexX, goalIndexY, outPathPoints);
 	if (!foundPath)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Could not find path!"));
@@ -93,4 +86,50 @@ AGlobalPath* UPathPlanner_AStarGrid::FindPath(const AFormation* formation, const
 	commander->GetCurrentPath()->InitPath(outPathPoints);
 	
 	return commander->GetCurrentPath();
+}
+
+void UPathPlanner_AStarGrid::CreateClearanceGrid(int width, int height, const TSubclassOf<AActor>& obstacle)
+{
+	// calculate clearance
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			int clearance = CalculateClearance(solver->GetPosition(x + y * width), FVector(cellSize * 0.5f), obstacle);
+			solver->SetClearance(clearance, x + y * width);
+		}
+	}
+}
+
+int UPathPlanner_AStarGrid::CalculateClearance(FVector position, FVector extent, const TSubclassOf<AActor>& obstacle)
+{
+	FVector boxPosition = position;
+	boxPosition.Z += 200.0f;
+	FVector boxExtent = extent;
+	FVector baseExtent = extent;
+	int clearance = -1;
+	const int maxSearchDepth = 20;
+	bool foundCollision = false;
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> overlapFilter;
+	overlapFilter.Emplace(ECC_GameTraceChannel2);
+	UWorld* world = GetWorld();
+	while (!foundCollision && clearance < maxSearchDepth)
+	{
+		// check if a collision occurs with the obstacle space
+		TArray<AActor*> out;
+		foundCollision = UKismetSystemLibrary::BoxOverlapActors(world, boxPosition, boxExtent, TArray<TEnumAsByte<EObjectTypeQuery>>(), obstacle.Get(), TArray<AActor*>(), out);
+
+		clearance++;
+
+		FVector extentIncrease = baseExtent * (clearance + 1) * 2;
+		boxExtent = baseExtent + extentIncrease;
+	}
+
+	float colF = (float)clearance / (float)maxSearchDepth;
+	FColor col = FColor::MakeRedToGreenColorFromScalar(colF);
+
+	DrawDebugBox(world, boxPosition, baseExtent, col, true);
+
+	return clearance;
 }

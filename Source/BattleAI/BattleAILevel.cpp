@@ -19,15 +19,15 @@
 ABattleAILevel::ABattleAILevel()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	// TODO: create array of all pathfinders
 }
 
 void ABattleAILevel::InitPathfindingInfo()
 {
-	// REMOVE COMMENTS
-
 	// init pathfinder
-	//pathfinder = NewObject<UPathPlanner_AStarGrid>(this);
-	//pathfinder->Initialize(floor);
+	pathfinder = NewObject<UPathPlanner_AStarGrid>(this);
+	pathfinder->Initialize(floor, obstacle);
 }
 
 // TODO: do debug drawing in path planner class
