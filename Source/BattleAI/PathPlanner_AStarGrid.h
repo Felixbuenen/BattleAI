@@ -28,7 +28,6 @@ public:
 	virtual void Initialize(class AActor* terrain) override;
 	virtual class AGlobalPath* FindPath(const class AFormation* formation, const FVector& goal) const override;
 
-private:
 	UFUNCTION(BlueprintImplementableEvent)
 	int CalculateClearance(FVector position, FVector extent);
 

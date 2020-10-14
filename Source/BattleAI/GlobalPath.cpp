@@ -14,9 +14,8 @@ AGlobalPath::AGlobalPath()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// REMOVE COMMENTS
-	//splinePath = CreateDefaultSubobject<USplineComponent>(TEXT("Spline Path"));
-	//SetRootComponent(splinePath);
+	splinePath = CreateDefaultSubobject<USplineComponent>(TEXT("Spline Path"));
+	SetRootComponent(splinePath);
 }
 
 // Called when the game starts or when spawned
@@ -28,26 +27,25 @@ void AGlobalPath::BeginPlay()
 
 void AGlobalPath::InitPath(std::vector<NodePosition>& pathPoints)
 {
-	// REMOVE COMMENTS
-	//pathPositions = pathPoints;
-	//
-	//// ensure path is empty at this point
-	//splinePath->ClearSplinePoints(true);
-	//
-	//int pathLength = (int)pathPositions.size();
-	//
-	//for (int i = pathLength - 1; i >= 0; i--)
-	//{
-	//	FVector position;
-	//	position.X = pathPositions[i].x;
-	//	position.Y = pathPositions[i].y;
-	//
-	//	splinePath->AddSplinePoint(position, ESplineCoordinateSpace::World ,false);
-	//	//splinePath->SetTangentAtSplinePoint(i, FVector{150.f, 0.f, 0.f}, ESplineCoordinateSpace::Local, true);
-	//}
-	//
-	//splinePath->UpdateSpline();
-	//splinePath->Duration = 1.f;
+	pathPositions = pathPoints;
+	
+	// ensure path is empty at this point
+	splinePath->ClearSplinePoints(true);
+	
+	int pathLength = (int)pathPositions.size();
+	
+	for (int i = pathLength - 1; i >= 0; i--)
+	{
+		FVector position;
+		position.X = pathPositions[i].x;
+		position.Y = pathPositions[i].y;
+	
+		splinePath->AddSplinePoint(position, ESplineCoordinateSpace::World ,false);
+		//splinePath->SetTangentAtSplinePoint(i, FVector{150.f, 0.f, 0.f}, ESplineCoordinateSpace::Local, true);
+	}
+	
+	splinePath->UpdateSpline();
+	splinePath->Duration = 1.f;
 }
 
 FRotator AGlobalPath::GetDirectionAtPercentile(float percentile) const
