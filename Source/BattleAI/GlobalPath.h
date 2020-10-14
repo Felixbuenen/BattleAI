@@ -29,8 +29,6 @@ protected:
 
 	std::vector<NodePosition> pathPositions;
 
-	static float CellSize;
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -41,8 +39,8 @@ public:
 	FVector GetLocationAtPercentile(float percentile) const;
 
 	float GetPathLength() const;
-	static void SetCellSize(float cellSize)
-	{
-		CellSize = cellSize;
-	}
+
+	//virtual FVector GetAttractionPoint(const FVector& location) const = 0;
+	//virtual FRotator GetEndpointRotation() const = 0;
+	//virtual bool HasReachedDestination() const = 0;
 };

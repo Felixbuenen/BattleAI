@@ -1,5 +1,3 @@
-// A C++ Program to implement A* Search Algorithm 
-
 #pragma once
 
 #define SQRT_TWO 1.41421356
@@ -45,7 +43,7 @@ public:
 	UAStarSolver();
 	~UAStarSolver();
 	
-	void Init(const int width, const int height, const int cellSize, const AActor* gridObject, bool divAndConq);
+	void Init(const int width, const int height, const int cellSize, const FVector& origin, bool divAndConq);
 	bool Solve(const FVector2D bboxExtent, const int startX, const int startY, const int goalX, const int goalY, std::vector<NodePosition>& outPath);
 	void SetClearance(int clearance, int index);
 
@@ -53,7 +51,7 @@ public:
 	FORCEINLINE int GetClearance(int index) const;
 	FORCEINLINE std::vector<Node*> GetGrid() const { return grid; }
 
-	void DrawDivisions(const UWorld* world, const FVector2D bboxExtent, const FVector2D dir, const int startX, const int startY) const;
+	void DrawDivisions(const class UWorld* world, const FVector2D bboxExtent, const FVector2D dir, const int startX, const int startY) const;
 
 private:
 
@@ -68,7 +66,8 @@ private:
 
 	bool divAndConq;
 
-	int gridDimension;
+	int gridWidth;
+	int gridHeight;
 	float cellSize;
 	int leftEdge;
 	int upperEdge;

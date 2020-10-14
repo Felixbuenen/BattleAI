@@ -16,13 +16,17 @@ class BATTLEAI_API ABattleAILevel : public ALevelScriptActor
 
 	ABattleAILevel();
 	
+public:
+	UFUNCTION(BlueprintCallable, Category = LevelBlueprint)
+	class UPathPlanner* GetPathPlanner() const;
+
 protected:
 
 	UPROPERTY(EditAnywhere)
 	class AStaticMeshActor* floor;
 
 	UPROPERTY()
-	class UAStarSolver* pathfinder;
+	class UPathPlanner* pathfinder;
 
 	UPROPERTY(EditAnywhere)
 	bool DivideAndConquerPathfinding;
@@ -30,18 +34,5 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = LevelBlueprint)
 	void InitPathfindingInfo();
 
-	UFUNCTION(BlueprintCallable, Category = LevelBlueprint)
-	class AGlobalPath* FindGlobalPath(class AFormation* commander, FVector destination);
-
-	UFUNCTION(BlueprintImplementableEvent, Category = LevelBlueprint)
-	int CalculateClearance(FVector position, FVector extent);
-
 	virtual void Tick(float DeltaTime) override;
-
-	UPROPERTY(EditAnywhere)
-	int gridDimension = 110;
-	
-	float CellExtent;
-	float levelBoundX;
-	float levelBoundY;
 };
