@@ -15,11 +15,11 @@ class BATTLEAI_API ABattleAIGameState : public AGameStateBase
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debugging)
-	bool ShowSDF = false;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debugging)
-	bool ShowGlobalPaths = false;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debugging)
+	//bool ShowSDF = false;
+	//
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debugging)
+	//bool ShowGlobalPaths = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debugging)
 	bool ShowSoldierDestinations = false;

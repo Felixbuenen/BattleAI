@@ -22,6 +22,8 @@ UPathPlanner_AStarGrid::UPathPlanner_AStarGrid()
 
 void UPathPlanner_AStarGrid::Initialize(class AActor* terrain, const TSubclassOf<AActor>& obstacle)
 {
+	Super::Initialize(terrain, obstacle);
+	
 	FVector origin, bbox;
 	terrain->GetActorBounds(true, origin, bbox);
 	
@@ -125,11 +127,6 @@ int UPathPlanner_AStarGrid::CalculateClearance(FVector position, FVector extent,
 		FVector extentIncrease = baseExtent * (clearance + 1) * 2;
 		boxExtent = baseExtent + extentIncrease;
 	}
-
-	float colF = (float)clearance / (float)maxSearchDepth;
-	FColor col = FColor::MakeRedToGreenColorFromScalar(colF);
-
-	DrawDebugBox(world, boxPosition, baseExtent, col, true);
 
 	return clearance;
 }

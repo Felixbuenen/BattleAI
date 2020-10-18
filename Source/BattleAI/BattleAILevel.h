@@ -37,5 +37,12 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = LevelBlueprint)
 	void InitPathfindingInfo();
 
+	// Debug triggers
+	UFUNCTION(BlueprintCallable, Category = DebugDrawing)
+	void ToggleDrawPath(class AGlobalPath* path) const;
+
+	UFUNCTION(BlueprintCallable, Category = DebugDrawing)
+	void ToggleDrawPlannerInfo(int infoKey) const;
+
 	virtual void Tick(float DeltaTime) override;
 };

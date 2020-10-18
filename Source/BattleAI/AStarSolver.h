@@ -50,6 +50,7 @@ public:
 	FORCEINLINE FVector GetPosition(int index) const;
 	FORCEINLINE int GetClearance(int index) const;
 	FORCEINLINE std::vector<Node*> GetGrid() const { return grid; }
+	FORCEINLINE void GetGridDimensions(int& outWidth, int& outHeight) { outWidth = gridWidth; outHeight = gridHeight; }
 
 	void DrawDivisions(const class UWorld* world, const FVector2D bboxExtent, const FVector2D dir, const int startX, const int startY) const;
 

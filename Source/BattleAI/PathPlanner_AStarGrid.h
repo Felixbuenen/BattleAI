@@ -13,6 +13,8 @@ UCLASS()
 class BATTLEAI_API UPathPlanner_AStarGrid : public UPathPlanner
 {
 	GENERATED_BODY()
+
+	friend class UDebugRenderer_AStarGrid;
 	
 public:
 	UPathPlanner_AStarGrid();

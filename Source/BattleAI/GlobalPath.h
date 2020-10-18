@@ -38,6 +38,8 @@ public:
 	FRotator GetDirectionAtPercentile(float percentile) const;
 	FVector GetLocationAtPercentile(float percentile) const;
 
+	FORCEINLINE const std::vector<NodePosition>& GetPathPositions() const { return pathPositions; }
+
 	float GetPathLength() const;
 
 	//virtual FVector GetAttractionPoint(const FVector& location) const = 0;
