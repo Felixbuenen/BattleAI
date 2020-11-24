@@ -20,7 +20,9 @@ class BATTLEAI_API UDebugRenderer_AStarGrid : public UDebugRenderer
 	typedef void (UDebugRenderer_AStarGrid::*DrawDelegate)(void) const;
 
 public:
-	virtual void ToggleRender(int debugKey) const override;
+	virtual void Render(int debugKey) const override;
+	
+	virtual void DrawPaths() const override;
 
 protected:
 	virtual void SetupRenderDelegates() override;
@@ -28,10 +30,6 @@ protected:
 private:
 	// RENDER DELEGATES
 	void DrawGrid() const;
-	void DrawGridPaths() const;
 
 	std::map<int, DrawDelegate> drawDelegates;
-
-	mutable bool activeDrawGrid;
-	mutable bool activeDrawGridPath;
 };

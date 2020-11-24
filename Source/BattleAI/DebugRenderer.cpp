@@ -28,6 +28,8 @@ void UDebugRenderer::Initialize(class UWorld* worldRef, class UPathPlanner* plan
 	SetupRenderDelegates();
 }
 
-void UDebugRenderer::ToggleRender(int debugKey) const { }
+void UDebugRenderer::Render(int debugKey) const { }
 
 void UDebugRenderer::SetupRenderDelegates() { }
+
+void UDebugRenderer::DrawPaths() const { }

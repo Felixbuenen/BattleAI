@@ -22,7 +22,9 @@ public:
 	static UDebugRenderer* GetNewDebugRenderer(class UPathPlanner* planner);
 
 	void Initialize(class UWorld* worldRef, class UPathPlanner* plannerRef);
-	virtual void ToggleRender(int debugKey) const;
+	virtual void Render(int debugKey) const;
+
+	virtual void DrawPaths() const;
 
 protected:
 	virtual void SetupRenderDelegates();

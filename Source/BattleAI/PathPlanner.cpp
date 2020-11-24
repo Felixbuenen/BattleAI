@@ -22,9 +22,9 @@ AGlobalPath* UPathPlanner::FindPath(const AFormation* formation, const FVector& 
 	return nullptr;
 }
 
-void UPathPlanner::ToggleDrawDebugInfo(int infoKey) const
+void UPathPlanner::DrawDebugInfo(int infoKey) const
 {
 	if (_debugRenderer == nullptr) return;
 
-	_debugRenderer->ToggleRender(infoKey);
+	_debugRenderer->Render(infoKey);
 }

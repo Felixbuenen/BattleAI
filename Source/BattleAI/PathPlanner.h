@@ -21,7 +21,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual class AGlobalPath* FindPath(const class AFormation* formation, const FVector& goal) const;
 
-	void ToggleDrawDebugInfo(int infoKey) const;
+	void DrawDebugInfo(int infoKey) const;
 
 protected:
 	class UDebugRenderer* _debugRenderer;

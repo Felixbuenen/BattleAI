@@ -11,7 +11,7 @@
 #include "AStarSolver.h"
 #include "GlobalPath.h"
 
-void UDebugRenderer_AStarGrid::ToggleRender(int debugKey) const
+void UDebugRenderer_AStarGrid::Render(int debugKey) const
 {
 	// first check if the delegate key exists
 	auto drawDelegateIt = drawDelegates.find(debugKey);
@@ -26,37 +26,28 @@ void UDebugRenderer_AStarGrid::SetupRenderDelegates()
 {
 	// setup delegates, for now just assign simple hard-coded input keys
 
-	drawDelegates.emplace(std::make_pair<int, DrawDelegate>(1, &UDebugRenderer_AStarGrid::DrawGrid));
+	drawDelegates.emplace(std::make_pair<int, DrawDelegate>(1, &UDebugRenderer_AStarGrid::DrawPaths));
+	drawDelegates.emplace(std::make_pair<int, DrawDelegate>(2, &UDebugRenderer_AStarGrid::DrawGrid));
 }
 
 void UDebugRenderer_AStarGrid::DrawGrid() const
 {
-	if (activeDrawGrid)
-	{
-		activeDrawGrid = false;
-		FlushPersistentDebugLines(_worldRef);
-		return;
-	}
-
-	activeDrawGrid = true;
-
-	UE_LOG(LogTemp, Warning, TEXT("DRAW GRID"));
+	//UE_LOG(LogTemp, Warning, TEXT("DRAW GRID"));
 	UPathPlanner_AStarGrid* gridPlannerRef = static_cast<UPathPlanner_AStarGrid*>(_plannerRef);
 	if (gridPlannerRef == nullptr) {
-		UE_LOG(LogTemp, Warning, TEXT("cannot draw grid: planner reference is nullptr"));
+		//UE_LOG(LogTemp, Warning, TEXT("cannot draw grid: planner reference is nullptr"));
 		return;
 	}
 	UAStarSolver* solver = gridPlannerRef->solver;
 	if (solver == nullptr) {
-		UE_LOG(LogTemp, Warning, TEXT("cannot draw grid: solver is nullptr"));
+		//UE_LOG(LogTemp, Warning, TEXT("cannot draw grid: solver is nullptr"));
 		return;
 	}
 	int gridWidth, gridHeight;
 	solver->GetGridDimensions(gridWidth, gridHeight);
 	float cellExtent = gridPlannerRef->cellSize * 0.5f;
-	UE_LOG(LogTemp, Warning, TEXT("width: %d, height: %d"), gridWidth, gridHeight);
+	//UE_LOG(LogTemp, Warning, TEXT("width: %d, height: %d"), gridWidth, gridHeight);
 
-	FlushPersistentDebugLines(_worldRef);
 	for (int x = 0; x < gridWidth; x++)
 	{
 		for (int y = 0; y < gridHeight; y++)
@@ -74,20 +65,22 @@ void UDebugRenderer_AStarGrid::DrawGrid() const
 			//UE_LOG(LogTemp, Warning, TEXT("drawing at pos: %s, with extent: %s, and clearance: %d"), *center.ToString(), *extend.ToString(), clearance);
 			if (clearance == 0)
 			{
-				DrawDebugBox(_worldRef, center, extend, FColor::Red, true);
+				DrawDebugBox(_worldRef, center, extend, FColor::Red);
 			}
 			else
 			{
-				DrawDebugBox(_worldRef, center, extend, clr, true);
+				DrawDebugBox(_worldRef, center, extend, clr);
 			}
 		}
 	}
 }
 
-void UDebugRenderer_AStarGrid::DrawGridPaths() const
+void UDebugRenderer_AStarGrid::DrawPaths() const
 {
 	TArray<AActor*> outPaths;
 	UGameplayStatics::GetAllActorsOfClass((const UObject*)_worldRef, AGlobalPath::StaticClass(), outPaths);
+
+	UE_LOG(LogTemp, Warning, TEXT("out paths: %d"), outPaths.Num());
 
 	for(AActor* pathActor : outPaths)
 	{
@@ -101,8 +94,9 @@ void UDebugRenderer_AStarGrid::DrawGridPaths() const
 		for (const NodePosition& pos : positions)
 		{
 			FVector center(pos.x, pos.y, 70);
+			center.Z += 100.f;
 			FVector extend(cellExtent);
-			DrawDebugSolidBox(GetWorld(), center, extend, FColor::Red, false);
+			DrawDebugSolidBox(GetWorld(), center, extend, FColor::Red);
 		}
 	}
 }
