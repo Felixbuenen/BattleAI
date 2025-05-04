@@ -1,12 +1,12 @@
-# Formation movement
+# Formation movement (UE4.22)
 
 ## Introduction
 In many RTS games with a 'battle' mechanic, the player needs to be able to position units easily around the battle map. One game series that does this well is the Total War series. While playing Rome Total War, I was fascinated by this seemingly easy, but in practice quite tricky issue: how does one create a valid path with enough clearance to obstacles for a formation of soldiers?
 
 ## Demo
-Below is a video demonstration of the formation movement prototype (UE4.22 project):
+Below is a video demonstration of the formation movement prototype:
 
-_TODO_
+[![](https://markdown-videos-api.jorgenkh.no/youtube/kIc02FKVjHU)](https://youtu.be/kIc02FKVjHU)
 
 ## Approach
 
