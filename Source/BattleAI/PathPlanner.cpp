@@ -33,7 +33,7 @@ AGlobalPath* UPathPlanner::FindPath(const AFormation* formation, const FVector& 
 
 void UPathPlanner::DrawDebugInfo(int infoKey) const
 {
-	if (_debugRenderer == nullptr) return;
+	if (!IsValid(_debugRenderer)) return;
 
 	_debugRenderer->Render(infoKey);
 }

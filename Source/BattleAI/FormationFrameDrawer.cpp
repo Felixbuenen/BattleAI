@@ -54,9 +54,12 @@ void UFormationFrameDrawer::StopTargetLocationDisplay()
 // draws the soldier location decals
 void UFormationFrameDrawer::UpdateTargetLocationDisplay()
 {
-	if (targetLocDecals.Num() == 0) return;
+	int numDecals = targetLocDecals.Num();
+	if (numDecals == 0) return;
 
 	const TArray<TArray<FVector>>& targetSoldierLocations = _frame->GetTargetSoldierLocations();
+	int numCommanders = targetSoldierLocations.Num();
+
 	const TArray<FVector>& commLocation = _frame->GetCommanderTargetLocations();
 	const FRotator& targetRot = _frame->GetTargetRotation();
 	const bool validPosition = _frame->GetValidPosition();
@@ -64,20 +67,24 @@ void UFormationFrameDrawer::UpdateTargetLocationDisplay()
 	float hue = validPosition ? 0.f : RED_HUE;
 
 	int counter = 0;
-	int numCommanders = targetSoldierLocations.Num();
 	for (int i = 0; i < numCommanders; i++)
 	{
 		int numSoldiers = targetSoldierLocations[i].Num();
 		for (int s = 0; s < numSoldiers; s++)
 		{
 			int offset = numSoldiers * i;
+			if (numDecals < (offset + s)) break;
+
+			UDecalComponent* decal = targetLocDecals[offset + s];
+			if (!IsValid(decal)) continue;
+
 			FVector targetLoc = targetRot.RotateVector(targetSoldierLocations[i][s]);
 			targetLoc += commLocation[i];
 			targetLoc.Z = 0.f;
-			targetLocDecals[offset + s]->SetWorldRotation(targetRot);
-			targetLocDecals[offset + s]->SetWorldLocation(targetLoc);
+			decal->SetWorldRotation(targetRot);
+			decal->SetWorldLocation(targetLoc);
 
-			UMaterialInstanceDynamic* matRef = (UMaterialInstanceDynamic*)targetLocDecals[offset + s]->GetMaterial(0);
+			UMaterialInstanceDynamic* matRef = (UMaterialInstanceDynamic*)decal->GetMaterial(0);
 			if (matRef != nullptr)
 			{
 				matRef->SetScalarParameterValue("Hue", hue);
