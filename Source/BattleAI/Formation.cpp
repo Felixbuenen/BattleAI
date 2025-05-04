@@ -69,6 +69,11 @@ void AFormation::InitFormation()
 			FVector location = GetActorLocation() + rotation.RotateVector(relOffset);
 
 			auto soldier = GetWorld()->SpawnActor<ASoldier>(SoldierRef, location, rotation);
+			if (!soldier)
+			{
+				UE_LOG(LogTemp, Error, TEXT("Couldn't create soldier"));
+				return;
+			}
 			soldier->MyOffset = relOffset;
 			soldier->MyCommander = commander;
 			soldier->MyFormation = this;
@@ -89,7 +94,9 @@ void AFormation::AssignSoldierOffset(const AGlobalPath* path)
 		UE_LOG(LogTemp, Warning, TEXT("NO PATH!"));
 		return;
 	}
-	FRotator dirRotation = path->GetDirectionAtPercentile(0.f); // get starting direction
+	FRotator dirRotation = path->GetDirectionAtVertex(0); // get starting direction
+	UE_LOG(LogTemp, Warning, TEXT("DIR: %s"), *dirRotation.Vector().ToString());
+
 	AssignSoldierOffset(dirRotation);
 }
 
@@ -106,6 +113,7 @@ void AFormation::AssignSoldierOffset(FRotator orientation) const
 	for (int i = 0; i < numSoldiers; i++)
 	{
 		FVector relLocation = orientation.RotateVector(FormationPositions[i]);
+		//FVector relLocation = FormationPositions[i];
 		FVector targetPos = relLocation + commander->GetActorLocation();
 		targetPositions.push_back(targetPos);
 	}
@@ -115,7 +123,7 @@ void AFormation::AssignSoldierOffset(FRotator orientation) const
 	{
 		haMatrix.push_back(std::vector<double>());
 		FVector currentPos = Soldiers[row]->GetActorLocation();
-
+		
 		for (int col = 0; col < numSoldiers; col++)
 		{
 			double distance = (currentPos - targetPositions[col]).Size(); // maybe size sqrd for optimization?
@@ -131,6 +139,8 @@ void AFormation::AssignSoldierOffset(FRotator orientation) const
 	{
 		Soldiers[i]->MyOffset = FormationPositions[assignmentOutput[i]];
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Hungarian algorithm solved"));
 }
 
 

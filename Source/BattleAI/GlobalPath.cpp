@@ -52,6 +52,14 @@ FRotator AGlobalPath::GetDirectionAtPercentile(float percentile) const
 {
 	return splinePath->GetRotationAtTime(percentile, ESplineCoordinateSpace::World);
 }
+
+FRotator AGlobalPath::GetDirectionAtVertex(int vertex) const
+{
+	FVector tangent = splinePath->GetTangentAtSplinePoint(vertex, ESplineCoordinateSpace::World);
+	return tangent.Rotation();
+}
+
+
 FVector AGlobalPath::GetLocationAtPercentile(float percentile) const
 {
 	return splinePath->GetLocationAtTime(percentile, ESplineCoordinateSpace::World);

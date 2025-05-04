@@ -36,6 +36,7 @@ public:
 	void InitPath(std::vector<NodePosition>& pathPoints);
 
 	FRotator GetDirectionAtPercentile(float percentile) const;
+	FRotator GetDirectionAtVertex(int vertex) const;
 	FVector GetLocationAtPercentile(float percentile) const;
 
 	FORCEINLINE const std::vector<NodePosition>& GetPathPositions() const { return pathPositions; }

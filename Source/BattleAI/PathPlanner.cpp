@@ -10,10 +10,19 @@
 void UPathPlanner::Initialize(class AActor* terrain, const TSubclassOf<AActor>& obstacle)
 {
 	_debugRenderer = UDebugRenderer::GetNewDebugRenderer(this);
-	if (_debugRenderer == nullptr) return;
+	if (_debugRenderer == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UDebugRenderer could not be created. abort..."));
+		return;
+	}
 
 	// use the terrain object to get a reference to the world
 	UWorld* world = terrain->GetWorld();
+	if (world == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UWorld could not be created. abort..."));
+		return;
+	}
 	_debugRenderer->Initialize(world, this);
 }
 

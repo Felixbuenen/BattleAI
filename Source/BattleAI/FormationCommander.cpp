@@ -35,6 +35,13 @@ void AFormationCommander::BeginPlay()
 	CurrentPath = GetWorld()->SpawnActor<AGlobalPath>(AGlobalPath::StaticClass(), FVector(0.f), FRotator());
 }
 
+void AFormationCommander::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	UE_LOG(LogTemp, Warning, TEXT("Actor %s destroyed. Reason: %d"), *GetName(), (int32)EndPlayReason);
+}
+
+
 // Called every frame
 void AFormationCommander::Tick(float DeltaTime)
 {
@@ -57,6 +64,11 @@ void AFormationCommander::TriggerMoveToLocation()
 
 void AFormationCommander::GoToLocation(const FVector& location, class AGlobalPath* path)
 {
+	if (!IsValid(path))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("path not valid"));
+	}
+	//CurrentPath = path;
 	myFormation->AssignSoldierOffset(path);
 	targetLocation = location;
 
